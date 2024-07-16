@@ -1,13 +1,14 @@
 import React, { useContext } from 'react';
 import { AppBar, Toolbar, Typography, Button } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const NavBar = () => {
-    const { isAuthenticated, logout } = useContext(AuthContext);
+    const { user, logout } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     const handleLogout = () => {
-        logout();
+        logout(navigate);
     };
 
     return (
@@ -16,7 +17,7 @@ const NavBar = () => {
                 <Typography variant="h6" style={{ flexGrow: 1 }}>
                     School Management
                 </Typography>
-                {isAuthenticated && (
+                {user && (
                     <>
                         <Button color="inherit" component={Link} to="/dashboard">
                             Dashboard
@@ -24,9 +25,23 @@ const NavBar = () => {
                         <Button color="inherit" component={Link} to="/profile">
                             Perfil
                         </Button>
-                        <Button color="inherit" component={Link} to="/fichas">
-                            Fichas Clínicas
-                        </Button>
+                        {(user.role === 'admin' || user.role === 'usuario' || user.role === 'viewer') && (
+                            <>
+                                <Button color="inherit" component={Link} to="/students">
+                                    Ver Fichas
+                                </Button>
+                            </>
+                        )}
+                        {user.role === 'admin' && (
+                            <>
+                                <Button color="inherit" component={Link} to="/users">
+                                    Gestión de Usuarios
+                                </Button>
+                                <Button color="inherit" component={Link} to="/students/add">
+                                    Añadir Estudiante
+                                </Button>
+                            </>
+                        )}
                         <Button color="inherit" onClick={handleLogout}>
                             Cerrar Sesión
                         </Button>

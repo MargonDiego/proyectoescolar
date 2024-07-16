@@ -1,90 +1,60 @@
+// src/components/AddStudent.js
 import React, { useState } from 'react';
-import { Container, Typography, TextField, Button } from '@mui/material';
+import { Container, Typography, TextField, Button, Paper } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const AddStudent = () => {
-    const [student, setStudent] = useState({ name: '', age: '', grade: '', address: '' });
+    const [student, setStudent] = useState({
+        name: '',
+        course: '',
+        address: '',
+        phone: '',
+        dob: '',
+        medicalHistory: '',
+        allergies: '',
+        emergencyContact: '',
+        emergencyPhone: '',
+        bloodType: '',
+        medications: '',
+        notes: ''
+    });
     const navigate = useNavigate();
 
     const handleChange = (e) => {
-        setStudent({ ...student, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setStudent({ ...student, [name]: value });
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Aquí deberías agregar el nuevo estudiante al estado global o enviarlo a un backend
-        console.log('Estudiante añadido', student);
+        console.log('Estudiante añadido:', student);
         navigate('/students');
     };
 
     return (
-        <Container component="main" maxWidth="xs">
-            <div style={{ marginTop: '8px' }}>
-                <Typography component="h1" variant="h5">
-                    Añadir Estudiante
-                </Typography>
-                <form onSubmit={handleSubmit} style={{ width: '100%', marginTop: '8px' }}>
-                    <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        id="name"
-                        label="Nombre"
-                        name="name"
-                        autoComplete="name"
-                        autoFocus
-                        value={student.name}
-                        onChange={handleChange}
-                    />
-                    <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        name="age"
-                        label="Edad"
-                        type="number"
-                        id="age"
-                        autoComplete="age"
-                        value={student.age}
-                        onChange={handleChange}
-                    />
-                    <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        name="grade"
-                        label="Grado"
-                        id="grade"
-                        autoComplete="grade"
-                        value={student.grade}
-                        onChange={handleChange}
-                    />
-                    <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        name="address"
-                        label="Dirección"
-                        id="address"
-                        autoComplete="address"
-                        value={student.address}
-                        onChange={handleChange}
-                    />
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        style={{ marginTop: '24px' }}
-                    >
+        <Container>
+            <Typography variant="h4" gutterBottom>
+                Añadir Estudiante
+            </Typography>
+            <Paper style={{ padding: '16px' }}>
+                <form onSubmit={handleSubmit}>
+                    <TextField label="Nombre" name="name" value={student.name} onChange={handleChange} fullWidth margin="normal" required />
+                    <TextField label="Curso" name="course" value={student.course} onChange={handleChange} fullWidth margin="normal" required />
+                    <TextField label="Dirección" name="address" value={student.address} onChange={handleChange} fullWidth margin="normal" />
+                    <TextField label="Teléfono" name="phone" value={student.phone} onChange={handleChange} fullWidth margin="normal" />
+                    <TextField label="Fecha de Nacimiento" name="dob" type="date" value={student.dob} onChange={handleChange} fullWidth margin="normal" InputLabelProps={{ shrink: true }} />
+                    <TextField label="Antecedentes Médicos" name="medicalHistory" value={student.medicalHistory} onChange={handleChange} fullWidth margin="normal" />
+                    <TextField label="Alergias" name="allergies" value={student.allergies} onChange={handleChange} fullWidth margin="normal" />
+                    <TextField label="Contacto de Emergencia" name="emergencyContact" value={student.emergencyContact} onChange={handleChange} fullWidth margin="normal" />
+                    <TextField label="Teléfono de Emergencia" name="emergencyPhone" value={student.emergencyPhone} onChange={handleChange} fullWidth margin="normal" />
+                    <TextField label="Grupo Sanguíneo" name="bloodType" value={student.bloodType} onChange={handleChange} fullWidth margin="normal" />
+                    <TextField label="Medicamentos" name="medications" value={student.medications} onChange={handleChange} fullWidth margin="normal" />
+                    <TextField label="Notas" name="notes" value={student.notes} onChange={handleChange} fullWidth margin="normal" />
+                    <Button variant="contained" color="primary" type="submit">
                         Añadir
                     </Button>
                 </form>
-            </div>
+            </Paper>
         </Container>
     );
 };

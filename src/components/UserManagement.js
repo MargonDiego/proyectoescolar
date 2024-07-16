@@ -7,9 +7,20 @@ const UserManagement = () => {
         { id: 2, firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com', rut: '98765432-1' },
     ]);
     const [open, setOpen] = useState(false);
+    const [editMode, setEditMode] = useState(false);
+    const [currentUser, setCurrentUser] = useState(null);
     const [newUser, setNewUser] = useState({ firstName: '', lastName: '', email: '', rut: '' });
 
     const handleClickOpen = () => {
+        setEditMode(false);
+        setNewUser({ firstName: '', lastName: '', email: '', rut: '' });
+        setOpen(true);
+    };
+
+    const handleEditClickOpen = (user) => {
+        setEditMode(true);
+        setCurrentUser(user);
+        setNewUser(user);
         setOpen(true);
     };
 
@@ -23,6 +34,12 @@ const UserManagement = () => {
 
     const handleAddUser = () => {
         setUsers([...users, { ...newUser, id: users.length + 1 }]);
+        setNewUser({ firstName: '', lastName: '', email: '', rut: '' });
+        handleClose();
+    };
+
+    const handleEditUser = () => {
+        setUsers(users.map(user => user.id === currentUser.id ? newUser : user));
         setNewUser({ firstName: '', lastName: '', email: '', rut: '' });
         handleClose();
     };
@@ -45,6 +62,7 @@ const UserManagement = () => {
                                 <TableCell>Apellido</TableCell>
                                 <TableCell>Email</TableCell>
                                 <TableCell>RUT</TableCell>
+                                <TableCell>Acciones</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -55,13 +73,18 @@ const UserManagement = () => {
                                     <TableCell>{user.lastName}</TableCell>
                                     <TableCell>{user.email}</TableCell>
                                     <TableCell>{user.rut}</TableCell>
+                                    <TableCell>
+                                        <Button onClick={() => handleEditClickOpen(user)} color="primary">
+                                            Editar
+                                        </Button>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
                 </TableContainer>
                 <Dialog open={open} onClose={handleClose}>
-                    <DialogTitle>Añadir Usuario</DialogTitle>
+                    <DialogTitle>{editMode ? 'Editar Usuario' : 'Añadir Usuario'}</DialogTitle>
                     <DialogContent>
                         <TextField
                             autoFocus
@@ -105,8 +128,8 @@ const UserManagement = () => {
                         <Button onClick={handleClose} color="primary">
                             Cancelar
                         </Button>
-                        <Button onClick={handleAddUser} color="primary">
-                            Añadir
+                        <Button onClick={editMode ? handleEditUser : handleAddUser} color="primary">
+                            {editMode ? 'Guardar Cambios' : 'Añadir'}
                         </Button>
                     </DialogActions>
                 </Dialog>

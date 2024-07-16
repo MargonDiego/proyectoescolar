@@ -1,9 +1,11 @@
 import React, { useState, useContext } from 'react';
 import { TextField, Button, Container, Typography, Grid, Link } from '@mui/material';
 import { AuthContext } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Auth = () => {
     const { login } = useContext(AuthContext);
+    const navigate = useNavigate();
     const [isRegistering, setIsRegistering] = useState(false);
     const [isRecovering, setIsRecovering] = useState(false);
     const [formData, setFormData] = useState({
@@ -22,11 +24,64 @@ const Auth = () => {
 
     const users = [
         {
-            firstName: 'Test',
+            firstName: 'Admin',
             lastName: 'User',
-            email: 'test@example.com',
+            email: 'admin@example.com',
             password: 'password',
-            rut: '12345678-9'
+            rut: '12345678-9',
+            role: 'admin',
+            position: 'Administrator',
+            avatar: 'https://via.placeholder.com/150'
+        },
+        {
+            firstName: 'Regular',
+            lastName: 'User',
+            email: 'user@example.com',
+            password: 'password',
+            rut: '98765432-1',
+            role: 'user',
+            position: 'User',
+            avatar: 'https://via.placeholder.com/150'
+        },
+        {
+            firstName: 'View',
+            lastName: 'Only',
+            email: 'view@example.com',
+            password: 'password',
+            rut: '11223344-5',
+            role: 'viewer',
+            position: 'Viewer',
+            avatar: 'https://via.placeholder.com/150'
+        },
+        {
+            firstName: 'Estudiante',
+            lastName: 'Uno',
+            email: 'estudiante1@example.com',
+            password: 'password',
+            rut: '66778899-1',
+            role: 'student',
+            position: 'Estudiante',
+            avatar: 'https://via.placeholder.com/150'
+        },
+        {
+            firstName: 'Estudiante',
+            lastName: 'Dos',
+            email: 'estudiante2@example.com',
+            password: 'password',
+            rut: '77889900-2',
+            role: 'student',
+            position: 'Estudiante',
+            avatar: 'https://via.placeholder.com/150'
+        },
+        {
+            firstName: 'Estudiante',
+            lastName: 'Tres',
+            email: 'estudiante3@example.com',
+            password: 'password',
+            rut: '88990011-3',
+            role: 'student',
+            position: 'Estudiante',
+            avatar: 'https://via.placeholder.com/150'
         }
     ];
 
@@ -38,7 +93,7 @@ const Auth = () => {
             if (userExists) {
                 alert('Email or RUT already exists');
             } else {
-                users.push({ firstName, lastName, email, password, rut });
+                users.push({ firstName, lastName, email, password, rut, role: 'user', position: 'User', avatar: 'https://via.placeholder.com/150' });
                 alert('User registered successfully');
                 setIsRegistering(false);
             }
@@ -55,9 +110,24 @@ const Auth = () => {
                 alert('Invalid credentials');
             } else {
                 alert('Login successful');
-                login();
+                login(user, navigate);
             }
         }
+    };
+
+    const switchToRegister = () => {
+        setIsRegistering(true);
+        setIsRecovering(false);
+    };
+
+    const switchToRecover = () => {
+        setIsRecovering(true);
+        setIsRegistering(false);
+    };
+
+    const switchToLogin = () => {
+        setIsRegistering(false);
+        setIsRecovering(false);
     };
 
     return (
@@ -213,19 +283,19 @@ const Auth = () => {
                     <Grid container>
                         <Grid item xs>
                             {!isRecovering && (
-                                <Link href="#" variant="body2" onClick={() => setIsRecovering(true)}>
+                                <Link href="#" variant="body2" onClick={switchToRecover}>
                                     ¿Olvidaste tu contraseña?
                                 </Link>
                             )}
                         </Grid>
                         <Grid item>
                             {!isRegistering && !isRecovering && (
-                                <Link href="#" variant="body2" onClick={() => setIsRegistering(true)}>
+                                <Link href="#" variant="body2" onClick={switchToRegister}>
                                     {"¿No tienes una cuenta? Regístrate"}
                                 </Link>
                             )}
                             {(isRegistering || isRecovering) && (
-                                <Link href="#" variant="body2" onClick={() => { setIsRegistering(false); setIsRecovering(false); }}>
+                                <Link href="#" variant="body2" onClick={switchToLogin}>
                                     {"Volver a iniciar sesión"}
                                 </Link>
                             )}
