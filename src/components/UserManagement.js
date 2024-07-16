@@ -123,6 +123,15 @@ const UserManagement = () => {
                             value={newUser.rut}
                             onChange={handleChange}
                         />
+                        <TextField
+                            margin="dense"
+                            name="contraseña"
+                            label="contraseña"
+                            type="text"
+                            fullWidth
+                            value={newUser.rut}
+                            onChange={handleChange}
+                        />
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleClose} color="primary">

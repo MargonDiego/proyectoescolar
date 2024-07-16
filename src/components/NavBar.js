@@ -1,54 +1,121 @@
-import React, { useContext } from 'react';
-import { AppBar, Toolbar, Typography, Button } from '@mui/material';
+import React, { useContext, useState } from 'react';
+import { AppBar, Toolbar, Typography, Button, IconButton, Drawer, List, ListItem, ListItemText, Box } from '@mui/material';
+import { Menu as MenuIcon } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const NavBar = () => {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
+    const [drawerOpen, setDrawerOpen] = useState(false);
 
     const handleLogout = () => {
         logout(navigate);
     };
 
+    const toggleDrawer = (open) => (event) => {
+        if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+            return;
+        }
+        setDrawerOpen(open);
+    };
+
+    const drawerList = (
+        <List>
+            <ListItem button component={Link} to="/dashboard" onClick={toggleDrawer(false)}>
+                <ListItemText primary="Dashboard" />
+            </ListItem>
+            {(user.role === 'admin' || user.role === 'usuario' || user.role === 'viewer') && (
+                <ListItem button component={Link} to="/students" onClick={toggleDrawer(false)}>
+                    <ListItemText primary="Ver Fichas" />
+                </ListItem>
+            )}
+            {user.role === 'admin' && (
+                <>
+                    <ListItem button component={Link} to="/users" onClick={toggleDrawer(false)}>
+                        <ListItemText primary="Gestión de Usuarios" />
+                    </ListItem>
+                    <ListItem button component={Link} to="/students/add" onClick={toggleDrawer(false)}>
+                        <ListItemText primary="Añadir Estudiante" />
+                    </ListItem>
+                </>
+            )}
+            <ListItem button component={Link} to="/profile" onClick={toggleDrawer(false)}>
+                <ListItemText primary="Perfil" />
+            </ListItem>
+            <ListItem button onClick={() => { handleLogout(); toggleDrawer(false); }}>
+                <ListItemText primary="Cerrar Sesión" />
+            </ListItem>
+        </List>
+    );
+
+    const buttonStyles = {
+        color: 'black',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        borderRadius: '8px',
+        margin: '0 8px',
+        border: '1px solid #ccc', // Borde gris leve
+        '&:hover': {
+            boxShadow: '0 6px 10px rgba(0, 0, 0, 0.15)',
+            transform: 'translateY(-1px)',
+        }
+    };
+
     return (
-        <AppBar position="static">
-            <Toolbar>
-                <Typography variant="h6" style={{ flexGrow: 1 }}>
-                    School Management
-                </Typography>
-                {user && (
-                    <>
-                        <Button color="inherit" component={Link} to="/dashboard">
-                            Dashboard
-                        </Button>
-                        <Button color="inherit" component={Link} to="/profile">
-                            Perfil
-                        </Button>
-                        {(user.role === 'admin' || user.role === 'usuario' || user.role === 'viewer') && (
-                            <>
-                                <Button color="inherit" component={Link} to="/students">
-                                    Ver Fichas
-                                </Button>
-                            </>
-                        )}
-                        {user.role === 'admin' && (
-                            <>
-                                <Button color="inherit" component={Link} to="/users">
-                                    Gestión de Usuarios
-                                </Button>
-                                <Button color="inherit" component={Link} to="/students/add">
-                                    Añadir Estudiante
-                                </Button>
-                            </>
-                        )}
-                        <Button color="inherit" onClick={handleLogout}>
-                            Cerrar Sesión
-                        </Button>
-                    </>
-                )}
-            </Toolbar>
-        </AppBar>
+        <div>
+            <AppBar position="static" sx={{ backgroundColor: 'white', borderBottom: '2px solid red', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', width: '100%' }}>
+                <Toolbar sx={{ justifyContent: 'center' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', maxWidth: '1200px' }}>
+                        <img src="/Escudocolegio.png" alt="Logo Colegio" style={{ width: 50, height: 50, marginRight: 16 }} />
+                        <Typography variant="h6" sx={{ flexGrow: 1, color: 'black', textAlign: 'center' }}>
+                            Colegio Siglo XXI Lampa
+                        </Typography>
+                        <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+                            {user && (
+                                <>
+                                    <Button component={Link} to="/dashboard" sx={buttonStyles}>
+                                        Dashboard
+                                    </Button>
+                                    {(user.role === 'admin' || user.role === 'usuario' || user.role === 'viewer') && (
+                                        <Button component={Link} to="/students" sx={buttonStyles}>
+                                            Ver Fichas
+                                        </Button>
+                                    )}
+                                    {user.role === 'admin' && (
+                                        <>
+                                            <Button component={Link} to="/users" sx={buttonStyles}>
+                                                Gestión de Usuarios
+                                            </Button>
+                                            <Button component={Link} to="/students/add" sx={buttonStyles}>
+                                                Añadir Estudiante
+                                            </Button>
+                                        </>
+                                    )}
+                                    <Button component={Link} to="/profile" sx={buttonStyles}>
+                                        Perfil
+                                    </Button>
+                                    <Button onClick={handleLogout} sx={buttonStyles}>
+                                        Cerrar Sesión
+                                    </Button>
+                                </>
+                            )}
+                        </Box>
+                        <IconButton
+                            color="inherit"
+                            aria-label="open drawer"
+                            edge="end"
+                            onClick={toggleDrawer(true)}
+                            sx={{ display: { xs: 'block', md: 'none' }, color: 'black' }}
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                    </Box>
+                </Toolbar>
+            </AppBar>
+            <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
+                {drawerList}
+            </Drawer>
+        </div>
     );
 };
 

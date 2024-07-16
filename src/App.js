@@ -1,6 +1,7 @@
 // src/App.js
 import React, { useContext } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
+import { CssBaseline, Box } from '@mui/material';
 import Auth from './components/Auth';
 import NavBar from './components/NavBar';
 import Dashboard from './components/Dashboard';
@@ -18,7 +19,8 @@ const App = () => {
     const { user } = useContext(AuthContext);
 
     return (
-        <div>
+        <Box sx={{ backgroundColor: '#ced4da', minHeight: '100vh' }}>
+            <CssBaseline />
             {user && <NavBar />}
             <Routes>
                 <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Auth />} />
@@ -32,7 +34,7 @@ const App = () => {
                 <Route path="/students/:id/edit-intervention/:interventionId" element={user && (user.role === 'admin' || user.role === 'usuario') ? <EditIntervention /> : <Navigate to="/" />} />
                 <Route path="/users" element={user && user.role === 'admin' ? <UserManagement /> : <Navigate to="/" />} />
             </Routes>
-        </div>
+        </Box>
     );
 };
 
