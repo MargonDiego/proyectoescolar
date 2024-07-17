@@ -1,4 +1,3 @@
-// src/components/EditStudent.js
 import React, { useState, useEffect } from 'react';
 import { Container, Typography, TextField, Button, Paper } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -24,24 +23,49 @@ const EditStudent = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const studentData = {
-            id: 1,
-            firstName: 'Juan',
-            lastName: 'Pérez',
-            rut: '12345678-9',
-            course: 'Primero Medio',
-            address: 'Calle Falsa 123',
-            phone: '123456789',
-            dob: '2005-05-20',
-            medicalHistory: 'Asma, Diabetes',
-            allergies: 'Polen, Polvo',
-            emergencyContact: 'María Pérez',
-            emergencyPhone: '987654321',
-            bloodType: 'O+',
-            medications: 'Inhalador de Asma',
-            notes: 'Paciente requiere chequeo cada 6 meses'
-        };
-        setStudent(studentData);
+        // Datos simulados de estudiantes
+        const studentData = [
+            {
+                id: 1,
+                firstName: 'Juan',
+                lastName: 'Pérez',
+                rut: '12345678-9',
+                course: 'Primero Medio',
+                address: 'Calle Falsa 123',
+                phone: '123456789',
+                dob: '2005-05-20',
+                avatar: 'https://via.placeholder.com/150',
+                medicalHistory: 'Asma, Diabetes',
+                allergies: 'Polen, Polvo',
+                emergencyContact: 'María Pérez',
+                emergencyPhone: '987654321',
+                bloodType: 'O+',
+                medications: 'Inhalador de Asma',
+                notes: 'Paciente requiere chequeo cada 6 meses'
+            },
+            {
+                id: 2,
+                firstName: 'María',
+                lastName: 'García',
+                rut: '98765432-1',
+                course: 'Segundo Medio',
+                address: 'Calle Verdadera 456',
+                phone: '987654321',
+                dob: '2004-04-15',
+                avatar: 'https://via.placeholder.com/150',
+                medicalHistory: 'Alergias a Polen',
+                allergies: 'Ninguna',
+                emergencyContact: 'José García',
+                emergencyPhone: '123456789',
+                bloodType: 'A+',
+                medications: 'Antihistamínicos',
+                notes: 'Paciente con seguimiento anual'
+            },
+        ];
+
+        // Encontrar el estudiante correspondiente por ID y establecerlo en el estado
+        const selectedStudent = studentData.find(s => s.id === parseInt(id));
+        setStudent(selectedStudent);
     }, [id]);
 
     const handleChange = (e) => {
@@ -52,7 +76,8 @@ const EditStudent = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log('Estudiante actualizado:', student);
-        navigate('/students');
+        // Redirige a la vista del estudiante actualizado
+        navigate(`/students/${id}`);
     };
 
     return (

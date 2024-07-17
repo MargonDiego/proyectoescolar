@@ -4,10 +4,10 @@ import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const Auth = () => {
-    const { login } = useContext(AuthContext);
-    const navigate = useNavigate();
-    const [isRegistering, setIsRegistering] = useState(false);
-    const [isRecovering, setIsRecovering] = useState(false);
+    const { login } = useContext(AuthContext); // Obtener la función de login del contexto de autenticación
+    const navigate = useNavigate(); // Hook para la navegación
+    const [isRegistering, setIsRegistering] = useState(false); // Estado para controlar el modo de registro
+    const [isRecovering, setIsRecovering] = useState(false); // Estado para controlar el modo de recuperación de contraseña
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -16,12 +16,14 @@ const Auth = () => {
         rut: '',
         emailOrRut: '',
         securityAnswer: ''
-    });
+    }); // Estado para los datos del formulario
 
-    const { firstName, lastName, email, password, rut, emailOrRut, securityAnswer } = formData;
+    const { firstName, lastName, email, password, rut, emailOrRut, securityAnswer } = formData; // Desestructurar los datos del formulario
 
+    // Función para manejar cambios en los campos del formulario
     const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
+    // Datos simulados de usuarios
     const users = [
         {
             firstName: 'Admin',
@@ -85,10 +87,11 @@ const Auth = () => {
         }
     ];
 
+    // Función para manejar el envío del formulario
     const onSubmit = e => {
         e.preventDefault();
 
-        if (isRegistering) {
+        if (isRegistering) { // Modo de registro
             const userExists = users.find(user => user.email === email || user.rut === rut);
             if (userExists) {
                 alert('Email or RUT already exists');
@@ -97,14 +100,14 @@ const Auth = () => {
                 alert('User registered successfully');
                 setIsRegistering(false);
             }
-        } else if (isRecovering) {
+        } else if (isRecovering) { // Modo de recuperación de contraseña
             const user = users.find(user => user.email === emailOrRut || user.rut === emailOrRut);
             if (!user) {
                 alert('Invalid credentials');
             } else {
                 alert('Recovery email sent (simulated)');
             }
-        } else {
+        } else { // Modo de inicio de sesión
             const user = users.find(user => (user.email === emailOrRut || user.rut === emailOrRut) && user.password === password);
             if (!user) {
                 alert('Invalid credentials');
@@ -115,6 +118,7 @@ const Auth = () => {
         }
     };
 
+    // Funciones para cambiar entre modos
     const switchToRegister = () => {
         setIsRegistering(true);
         setIsRecovering(false);

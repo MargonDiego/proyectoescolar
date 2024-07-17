@@ -10,10 +10,13 @@ const StudentList = () => {
     const [age, setAge] = useState('');
 
     useEffect(() => {
+        // Datos de ejemplo de estudiantes
         const studentsData = [
             {
                 id: 1,
-                name: 'Juan Pérez',
+                firstName: 'Juan',
+                lastName: 'Pérez',
+                rut: '12345678-9',
                 course: 'Primero Medio',
                 phone: '123456789',
                 dob: '2005-05-20',
@@ -22,7 +25,9 @@ const StudentList = () => {
             },
             {
                 id: 2,
-                name: 'María García',
+                firstName: 'María',
+                lastName: 'García',
+                rut: '98765432-1',
                 course: 'Segundo Medio',
                 phone: '987654321',
                 dob: '2004-04-15',
@@ -49,6 +54,7 @@ const StudentList = () => {
         filterStudents(search, course, e.target.value);
     };
 
+    // Calcula la edad del estudiante basado en su fecha de nacimiento
     const calculateAge = (dob) => {
         const birthDate = new Date(dob);
         const today = new Date();
@@ -60,9 +66,10 @@ const StudentList = () => {
         return age;
     };
 
+    // Filtra los estudiantes según los criterios de búsqueda, curso y edad
     const filterStudents = (search, course, age) => {
         let filtered = students.filter(student =>
-            student.name.toLowerCase().includes(search.toLowerCase()) &&
+            `${student.firstName} ${student.lastName}`.toLowerCase().includes(search.toLowerCase()) &&
             (course === '' || student.course === course) &&
             (age === '' || calculateAge(student.dob) === parseInt(age))
         );
@@ -71,12 +78,15 @@ const StudentList = () => {
 
     return (
         <Container>
+            {/* Título de la página */}
             <Typography variant="h4" gutterBottom>
                 Lista de Estudiantes
             </Typography>
+            {/* Botón para añadir un nuevo estudiante */}
             <Button variant="contained" color="primary" component={Link} to="/students/add" style={{ marginBottom: '16px' }}>
                 Añadir Estudiante
             </Button>
+            {/* Filtros de búsqueda */}
             <Paper style={{ padding: '16px', marginBottom: '16px' }}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={4}>
@@ -115,6 +125,7 @@ const StudentList = () => {
                     </Grid>
                 </Grid>
             </Paper>
+            {/* Lista de estudiantes filtrados */}
             <Grid container spacing={3}>
                 {filteredStudents.map(student => (
                     <Grid item xs={12} md={6} lg={4} key={student.id}>
@@ -123,11 +134,11 @@ const StudentList = () => {
                                 component="img"
                                 height="140"
                                 image={student.avatar}
-                                alt={student.name}
+                                alt={`${student.firstName} ${student.lastName}`}
                             />
                             <CardContent>
                                 <Typography variant="h6" component={Link} to={`/students/${student.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                                    {student.name}
+                                    {student.firstName} {student.lastName}
                                 </Typography>
                                 <Typography variant="body2" color="textSecondary">
                                     <strong>Curso:</strong> {student.course}

@@ -1,113 +1,105 @@
+// src/components/UserManagement.js
 import React, { useState } from 'react';
 import {
-  Container,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Button,
-  TextField,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Box,
-  Avatar,
-  IconButton,
-  Menu,
-  MenuItem,
-  TablePagination,
-  DialogContentText
+  Container,Typography,Table,TableBody,TableCell,TableContainer,TableHead,TableRow,Paper,Button,TextField,Dialog,DialogActions,DialogContent,DialogTitle,Box,Avatar,IconButton,Menu,MenuItem,TablePagination,DialogContentText
 } from '@mui/material';
 import { MoreVert as MoreVertIcon, Add as AddIcon, GetApp as GetAppIcon } from '@mui/icons-material';
+import UserCard from './UserCard';
 
 const UserManagement = () => {
   const initialUsers = [
+    // Datos iniciales de usuarios
     { id: 1, firstName: 'Admin', lastName: 'User', email: 'admin@example.com', rut: '12345678-9', role: 'admin', avatar: 'https://via.placeholder.com/150' },
     { id: 2, firstName: 'Regular', lastName: 'User', email: 'user@example.com', rut: '98765432-1', role: 'user', avatar: 'https://via.placeholder.com/150' },
-    { id: 3, firstName: 'View', lastName: 'Only', email: 'view@example.com', rut: '11223344-5', role: 'viewer',   avatar: 'https://via.placeholder.com/150' },
-    { id: 4, firstName: 'Estudiante', lastName: 'Uno', email: 'estudiante1@example.com', rut: '66778899-1', role: 'student',  avatar: 'https://via.placeholder.com/150' },
+    { id: 3, firstName: 'View', lastName: 'Only', email: 'view@example.com', rut: '11223344-5', role: 'viewer', avatar: 'https://via.placeholder.com/150' },
+    { id: 4, firstName: 'Estudiante', lastName: 'Uno', email: 'estudiante1@example.com', rut: '66778899-1', role: 'student', avatar: 'https://via.placeholder.com/150' },
     { id: 5, firstName: 'Estudiante', lastName: 'Dos', email: 'estudiante2@example.com', rut: '77889900-2', role: 'student', avatar: 'https://via.placeholder.com/150' },
-    { id: 6, firstName: 'Estudiante', lastName: 'Tres', email: 'estudiante3@example.com', rut: '88990011-3', role: 'student',  avatar: 'https://via.placeholder.com/150' }
+    { id: 6, firstName: 'Estudiante', lastName: 'Tres', email: 'estudiante3@example.com', rut: '88990011-3', role: 'student', avatar: 'https://via.placeholder.com/150' }
   ];
 
-  const [users, setUsers] = useState(initialUsers);
-  const [open, setOpen] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [newUser, setNewUser] = useState({ firstName: '', lastName: '', email: '', rut: '', role: '',  avatar: '' });
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [users, setUsers] = useState(initialUsers);  // Estado para los usuarios
+  const [open, setOpen] = useState(false);  // Estado para el diálogo de añadir/editar usuario
+  const [editMode, setEditMode] = useState(false);  // Modo de edición
+  const [currentUser, setCurrentUser] = useState(null);  // Usuario actualmente seleccionado
+  const [newUser, setNewUser] = useState({ firstName: '', lastName: '', email: '', rut: '', role: '', avatar: '' });  // Estado para un nuevo usuario
+  const [page, setPage] = useState(0);  // Estado para la paginación
+  const [rowsPerPage, setRowsPerPage] = useState(5);  // Filas por página para la paginación
+  const [anchorEl, setAnchorEl] = useState(null);  // Elemento ancla para el menú
+  const [searchTerm, setSearchTerm] = useState('');  // Término de búsqueda
+  const [deleteOpen, setDeleteOpen] = useState(false);  // Estado para el diálogo de confirmación de eliminación
+  const [selectedUser, setSelectedUser] = useState(null);  // Usuario seleccionado para mostrar la tarjeta
 
   const handleClickOpen = () => {
-    setEditMode(false);
-    setNewUser({ firstName: '', lastName: '', email: '', rut: '', role: '',  avatar: '' });
-    setOpen(true);
+    setEditMode(false);  // Desactivar modo edición
+    setNewUser({ firstName: '', lastName: '', email: '', rut: '', role: '', avatar: '' });  // Resetear estado del nuevo usuario
+    setOpen(true);  // Abrir diálogo
   };
 
   const handleEditClickOpen = (user) => {
-    setEditMode(true);
-    setCurrentUser(user);
-    setNewUser(user);
-    setOpen(true);
+    setEditMode(true);  // Activar modo edición
+    setCurrentUser(user);  // Establecer usuario actual
+    setNewUser(user);  // Establecer estado del usuario para editar
+    setOpen(true);  // Abrir diálogo
   };
 
   const handleClose = () => {
-    setOpen(false);
-    setDeleteOpen(false);
+    setOpen(false);  // Cerrar diálogo
+    setDeleteOpen(false);  // Cerrar diálogo de confirmación de eliminación
   };
 
   const handleChange = (e) => {
-    setNewUser({ ...newUser, [e.target.name]: e.target.value });
+    setNewUser({ ...newUser, [e.target.name]: e.target.value });  // Actualizar estado del usuario
   };
 
   const handleAddUser = () => {
-    setUsers([...users, { ...newUser, id: users.length + 1 }]);
-    setNewUser({ firstName: '', lastName: '', email: '', rut: '', role: '', avatar: '' });
-    handleClose();
+    setUsers([...users, { ...newUser, id: users.length + 1 }]);  // Añadir nuevo usuario
+    setNewUser({ firstName: '', lastName: '', email: '', rut: '', role: '', avatar: '' });  // Resetear estado del nuevo usuario
+    handleClose();  // Cerrar diálogo
   };
 
   const handleEditUser = () => {
-    setUsers(users.map(user => user.id === currentUser.id ? newUser : user));
-    setNewUser({ firstName: '', lastName: '', email: '', rut: '', role: '',   avatar: '' });
-    handleClose();
+    setUsers(users.map(user => user.id === currentUser.id ? newUser : user));  // Editar usuario
+    setNewUser({ firstName: '', lastName: '', email: '', rut: '', role: '', avatar: '' });  // Resetear estado del nuevo usuario
+    handleClose();  // Cerrar diálogo
   };
 
   const handleDeleteUser = () => {
-    setUsers(users.filter(user => user.id !== currentUser.id));
-    setDeleteOpen(false);
+    setUsers(users.filter(user => user.id !== currentUser.id));  // Eliminar usuario
+    setDeleteOpen(false);  // Cerrar diálogo de confirmación de eliminación
   };
 
   const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+    setPage(newPage);  // Cambiar página en la paginación
   };
 
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    setRowsPerPage(parseInt(event.target.value, 10));  // Cambiar filas por página
+    setPage(0);  // Resetear a la primera página
   };
 
   const handleMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
+    setAnchorEl(event.currentTarget);  // Establecer elemento ancla del menú
   };
 
   const handleMenuClose = () => {
-    setAnchorEl(null);
+    setAnchorEl(null);  // Cerrar menú
   };
 
   const handleDeleteClickOpen = (user) => {
-    setCurrentUser(user);
-    setDeleteOpen(true);
+    setCurrentUser(user);  // Establecer usuario actual para eliminar
+    setDeleteOpen(true);  // Abrir diálogo de confirmación de eliminación
+  };
+
+  const handleUserSelect = (user) => {
+    setSelectedUser(user);  // Establecer usuario seleccionado para mostrar tarjeta
+  };
+
+  const handleUserCardClose = () => {
+    setSelectedUser(null);  // Cerrar tarjeta del usuario seleccionado
   };
 
   const filteredUsers = users.filter((user) =>
+    // Filtrar usuarios según el término de búsqueda
     user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -126,7 +118,7 @@ const UserManagement = () => {
             variant="outlined"
             size="small"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => setSearchTerm(e.target.value)}  // Actualizar término de búsqueda
           />
           <Box>
             <Button variant="contained" color="primary" startIcon={<AddIcon />} sx={{ mr: 2 }} onClick={handleClickOpen}>
@@ -153,7 +145,7 @@ const UserManagement = () => {
               </TableHead>
               <TableBody>
                 {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((user) => (
-                  <TableRow key={user.id}>
+                  <TableRow key={user.id} onClick={() => handleUserSelect(user)}>
                     <TableCell>{user.id}</TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -317,6 +309,11 @@ const UserManagement = () => {
             </Button>
           </DialogActions>
         </Dialog>
+        {selectedUser && (
+          <Box sx={{ mt: 4 }}>
+            <UserCard user={selectedUser} onClose={handleUserCardClose} />  
+          </Box>
+        )}
       </Box>
     </Container>
   );

@@ -11,8 +11,9 @@ import {
 } from '@mui/material';
 import { AuthContext } from '../context/AuthContext';
 
+// Componente de perfil
 const Profile = () => {
-  const { user, updateUser } = useContext(AuthContext);
+  const { user, updateUser } = useContext(AuthContext); // Obtener usuario y función de actualización del contexto
   const [profileData, setProfileData] = useState({
     firstName: '',
     lastName: '',
@@ -29,6 +30,7 @@ const Profile = () => {
     zip: ''
   });
 
+  // Efecto para cargar los datos del perfil del usuario cuando se monta el componente
   useEffect(() => {
     setProfileData({
       firstName: user.firstName || '',
@@ -47,6 +49,7 @@ const Profile = () => {
     });
   }, [user]);
 
+  // Manejar cambios en los campos del formulario
   const handleChange = (event) => {
     setProfileData({
       ...profileData,
@@ -54,13 +57,14 @@ const Profile = () => {
     });
   };
 
+  // Manejar envío del formulario
   const handleSubmit = (event) => {
     event.preventDefault();
     if (profileData.password !== profileData.confirmPassword) {
       alert('Las contraseñas no coinciden');
       return;
     }
-    updateUser(profileData);
+    updateUser(profileData); // Actualizar los datos del perfil
   };
 
   return (

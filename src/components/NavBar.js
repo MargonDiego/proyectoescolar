@@ -4,15 +4,18 @@ import { Menu as MenuIcon } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
+// Componente de barra de navegación
 const NavBar = () => {
-    const { user, logout } = useContext(AuthContext);
-    const navigate = useNavigate();
-    const [drawerOpen, setDrawerOpen] = useState(false);
+    const { user, logout } = useContext(AuthContext); // Obtener usuario y función de cierre de sesión del contexto de autenticación
+    const navigate = useNavigate(); // Hook para navegación
+    const [drawerOpen, setDrawerOpen] = useState(false); // Estado para controlar la apertura del cajón (drawer)
 
+    // Función para manejar el cierre de sesión
     const handleLogout = () => {
-        logout(navigate);
+        logout(navigate); // Llama a la función de cierre de sesión y redirige al usuario
     };
 
+    // Función para alternar la apertura del cajón (drawer)
     const toggleDrawer = (open) => (event) => {
         if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
             return;
@@ -20,6 +23,7 @@ const NavBar = () => {
         setDrawerOpen(open);
     };
 
+    // Lista de elementos del cajón (drawer)
     const drawerList = (
         <List>
             <ListItem button component={Link} to="/dashboard" onClick={toggleDrawer(false)}>
@@ -49,6 +53,7 @@ const NavBar = () => {
         </List>
     );
 
+    // Estilos para los botones
     const buttonStyles = {
         color: 'black',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
@@ -63,6 +68,7 @@ const NavBar = () => {
 
     return (
         <div>
+            {/* Barra de aplicación */}
             <AppBar position="static" sx={{ backgroundColor: 'white', borderBottom: '2px solid red', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', width: '100%' }}>
                 <Toolbar sx={{ justifyContent: 'center' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', maxWidth: '1200px' }}>
@@ -100,6 +106,7 @@ const NavBar = () => {
                                 </>
                             )}
                         </Box>
+                        {/* Botón de menú para dispositivos móviles */}
                         <IconButton
                             color="inherit"
                             aria-label="open drawer"
@@ -112,6 +119,7 @@ const NavBar = () => {
                     </Box>
                 </Toolbar>
             </AppBar>
+            {/* Cajón (drawer) para dispositivos móviles */}
             <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
                 {drawerList}
             </Drawer>
