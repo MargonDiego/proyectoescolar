@@ -1,6 +1,5 @@
-// src/components/StudentList.js
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, List, ListItem, ListItemText, ListItemAvatar, Avatar, Button, Paper, Grid, TextField, MenuItem } from '@mui/material';
+import { Container, Typography, Card, CardContent, CardMedia, Grid, TextField, MenuItem, Button, Paper } from '@mui/material';
 import { Link } from 'react-router-dom';
 
 const StudentList = () => {
@@ -19,7 +18,7 @@ const StudentList = () => {
                 phone: '123456789',
                 dob: '2005-05-20',
                 medicalHistory: 'Asma, Diabetes',
-                avatar: 'https://via.placeholder.com/150' // Imagen de ejemplo
+                avatar: 'https://via.placeholder.com/150'
             },
             {
                 id: 2,
@@ -28,7 +27,7 @@ const StudentList = () => {
                 phone: '987654321',
                 dob: '2004-04-15',
                 medicalHistory: 'Alergias a Polen',
-                avatar: 'https://via.placeholder.com/150' // Imagen de ejemplo
+                avatar: 'https://via.placeholder.com/150'
             },
         ];
         setStudents(studentsData);
@@ -116,47 +115,39 @@ const StudentList = () => {
                     </Grid>
                 </Grid>
             </Paper>
-            <Paper>
-                <List>
-                    {filteredStudents.map(student => (
-                        <ListItem key={student.id} component={Link} to={`/students/${student.id}`}>
-                            <ListItemAvatar>
-                                <Avatar alt={student.name} src={student.avatar} />
-                            </ListItemAvatar>
-                            <ListItemText
-                                primary={student.name}
-                                secondary={
-                                    <Grid container spacing={1}>
-                                        <Grid item xs={12} sm={6}>
-                                            <Typography component="span" variant="body2" color="textPrimary">
-                                                <strong>Curso:</strong> {student.course}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <Typography component="span" variant="body2" color="textPrimary">
-                                                <strong>Teléfono:</strong> {student.phone}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs={12}>
-                                            <Typography component="span" variant="body2" color="textPrimary">
-                                                <strong>Historia Médica:</strong> {student.medicalHistory}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs={12}>
-                                            <Typography component="span" variant="body2" color="textPrimary">
-                                                <strong>Edad:</strong> {calculateAge(student.dob)}
-                                            </Typography>
-                                        </Grid>
-                                    </Grid>
-                                }
+            <Grid container spacing={3}>
+                {filteredStudents.map(student => (
+                    <Grid item xs={12} md={6} lg={4} key={student.id}>
+                        <Card>
+                            <CardMedia
+                                component="img"
+                                height="140"
+                                image={student.avatar}
+                                alt={student.name}
                             />
-                        </ListItem>
-                    ))}
-                </List>
-            </Paper>
+                            <CardContent>
+                                <Typography variant="h6" component={Link} to={`/students/${student.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                    {student.name}
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                    <strong>Curso:</strong> {student.course}
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                    <strong>Teléfono:</strong> {student.phone}
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                    <strong>Historia Médica:</strong> {student.medicalHistory}
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                    <strong>Edad:</strong> {calculateAge(student.dob)}
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                ))}
+            </Grid>
         </Container>
     );
 };
 
 export default StudentList;
-

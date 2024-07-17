@@ -6,7 +6,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 const EditStudent = () => {
     const { id } = useParams();
     const [student, setStudent] = useState({
-        name: '',
+        firstName: '',
+        lastName: '',
+        rut: '',
         course: '',
         address: '',
         phone: '',
@@ -24,7 +26,9 @@ const EditStudent = () => {
     useEffect(() => {
         const studentData = {
             id: 1,
-            name: 'Juan Pérez',
+            firstName: 'Juan',
+            lastName: 'Pérez',
+            rut: '12345678-9',
             course: 'Primero Medio',
             address: 'Calle Falsa 123',
             phone: '123456789',
@@ -58,7 +62,9 @@ const EditStudent = () => {
             </Typography>
             <Paper style={{ padding: '16px' }}>
                 <form onSubmit={handleSubmit}>
-                    <TextField label="Nombre" name="name" value={student.name} onChange={handleChange} fullWidth margin="normal" required />
+                    <TextField label="Nombre" name="firstName" value={student.firstName} onChange={handleChange} fullWidth margin="normal" required />
+                    <TextField label="Apellido" name="lastName" value={student.lastName} onChange={handleChange} fullWidth margin="normal" required />
+                    <TextField label="RUT" name="rut" value={student.rut} onChange={handleChange} fullWidth margin="normal" required />
                     <TextField label="Curso" name="course" value={student.course} onChange={handleChange} fullWidth margin="normal" required />
                     <TextField label="Dirección" name="address" value={student.address} onChange={handleChange} fullWidth margin="normal" />
                     <TextField label="Teléfono" name="phone" value={student.phone} onChange={handleChange} fullWidth margin="normal" />

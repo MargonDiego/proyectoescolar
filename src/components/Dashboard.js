@@ -1,7 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Container, Typography, Grid, Button } from '@mui/material';
+import { Container, Typography, Grid, Paper } from '@mui/material';
 import { AuthContext } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
 import RecentInterventions from './RecentInterventions';
 import InterventionStats from './InterventionStats';
 import InterventionCalendar from './InterventionCalendar';
@@ -36,34 +35,43 @@ const Dashboard = () => {
     return acc;
   }, {});
 
+  const paperStyle = {
+    padding: '16px',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+  };
+
+  const gridItemStyle = {
+    height: '450px', // Define una altura fija
+  };
+
   return (
     <Container>
       <Typography variant="h4" gutterBottom>Dashboard</Typography>
       <Grid container spacing={2}>
-        <Grid item xs={12} md={6}>
-          <InterventionStats total={totalInterventions} today={interventionsToday} />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <StudentSummary totalStudents={totalStudents} courses={courses} />
+        <Grid item xs={12}>
+          <Paper style={paperStyle}>
+            <InterventionCalendar events={events} />
+          </Paper>
         </Grid>
         <Grid item xs={12}>
-          <RecentInterventions interventions={events} />
+          <Paper style={paperStyle}>
+            <RecentInterventions interventions={events} />
+          </Paper>
         </Grid>
-        <Grid item xs={12}>
-          <InterventionCalendar events={events} />
+        <Grid item xs={12} md={6} style={gridItemStyle}>
+          <Paper style={{...paperStyle, width: '100%', height: '100%' }}>
+            <InterventionStats total={totalInterventions} today={interventionsToday} />
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={6} style={gridItemStyle}>
+          <Paper style={{...paperStyle, width: '100%', height: '100%' }}>
+            <StudentSummary totalStudents={totalStudents} courses={courses} />
+          </Paper>
         </Grid>
       </Grid>
-      {(user.role === 'admin' || user.role === 'user') && (
-        <Button
-          component={Link}
-          to="/students/add"
-          variant="contained"
-          color="primary"
-          style={{ marginTop: 16 }}
-        >
-          Añadir Ficha Clínica
-        </Button>
-      )}
     </Container>
   );
 };

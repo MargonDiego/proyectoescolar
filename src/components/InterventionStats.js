@@ -1,19 +1,44 @@
 import React from 'react';
-import { Paper, Typography } from '@mui/material';
+import { Bar } from 'react-chartjs-2';
+import {  Typography, Box } from '@mui/material';
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from 'chart.js';
+
+ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
 const InterventionStats = ({ total, today }) => {
+    const data = {
+        labels: ['Total', 'Hoy'],
+        datasets: [
+            {
+                label: 'Intervenciones',
+                data: [total, today],
+                backgroundColor: ['#3f51b5', '#f50057'],
+            },
+        ],
+    };
+
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            },
+        },
+    };
+
     return (
-        <Paper style={{ padding: '16px', marginTop: '16px' }}>
-            <Typography variant="h6" gutterBottom>
+        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Typography variant="h6" gutterBottom sx={{ textAlign: 'center' }}>
                 Estadísticas de Intervenciones
             </Typography>
-            <Typography variant="body1">
-                Total de Intervenciones: {total}
-            </Typography>
-            <Typography variant="body1">
-                Intervenciones Hoy: {today}
-            </Typography>
-        </Paper>
+            <Box sx={{ flexGrow: 1, position: 'relative' }}>
+                <Bar data={data} options={options} />
+            </Box>
+        </Box>
     );
 };
 

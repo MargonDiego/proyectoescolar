@@ -1,12 +1,13 @@
+// src/components/ViewStudent.js
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Paper, Button, List, ListItem, ListItemText, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Container, Typography, Paper, Button, List, ListItem, ListItemText, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, Box } from '@mui/material';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import InterventionCalendar from './InterventionCalendar'; // Asegúrate de importar el componente correctamente
+import InterventionCalendar from './InterventionCalendar';
 import StudentCard from './StudentCard';
 
 const ViewStudent = () => {
     const { id } = useParams();
-    const navigate = useNavigate(); // Hook de navegación
+    const navigate = useNavigate();
     const [student, setStudent] = useState(null);
     const [interventions, setInterventions] = useState([]);
     const [events, setEvents] = useState([]);
@@ -16,7 +17,9 @@ const ViewStudent = () => {
     useEffect(() => {
         const studentData = {
             id: 1,
-            name: 'Juan Pérez',
+            firstName: 'Juan',
+            lastName: 'Pérez',
+            rut: '12345678-9',
             course: 'Primero Medio',
             address: 'Calle Falsa 123',
             phone: '123456789',
@@ -71,35 +74,49 @@ const ViewStudent = () => {
 
     return (
         <Container>
-            <Typography variant="h4" gutterBottom>
-                Ver Estudiante
-            </Typography>
-            <StudentCard student={student} />
-            <Button variant="contained" color="primary" component={Link} to={`/students/edit/${id}`} style={{ marginTop: '16px' }}>
-                Editar Estudiante
-            </Button>
-            <Button variant="contained" color="primary" component={Link} to={`/students/${id}/add-intervention`} style={{ marginLeft: '16px', marginTop: '16px' }}>
-                Añadir Intervención
-            </Button>
-            <InterventionCalendar events={events} onSelectEvent={handleEventSelect} />
-            <Typography variant="h6" style={{ marginTop: '16px' }}>
-                Lista de Intervenciones
-            </Typography>
-            <Paper style={{ padding: '16px' }}>
-                <List>
-                    {interventions.map(intervention => (
-                        <ListItem key={intervention.id}>
-                            <ListItemText primary={intervention.description} secondary={new Date(intervention.date).toLocaleString()} />
-                            <Button variant="contained" color="secondary" component={Link} to={`/students/${id}/edit-intervention/${intervention.id}`}>
-                                Editar
-                            </Button>
-                            <Button variant="contained" color="error" onClick={() => handleDelete(intervention.id)}>
-                                Eliminar
-                            </Button>
-                        </ListItem>
-                    ))}
-                </List>
-            </Paper>
+            <Box sx={{ p: 2, backgroundColor: '#f5f5f5', borderRadius: 2, boxShadow: 3, mb: 3 }}>
+                <Typography variant="h4" gutterBottom>
+                    Ver Estudiante
+                </Typography>
+            </Box>
+            <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                    <StudentCard student={student} />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                    <Paper style={{ padding: '16px', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        <Box style={{ flexGrow: 1, overflowY: 'auto' }}>
+                            <InterventionCalendar events={events} onSelectEvent={handleEventSelect} />
+                        </Box>
+                    </Paper>
+                </Grid>
+                <Grid item xs={12}>
+                    <Paper style={{ padding: '16px' }}>
+                        <Button variant="contained" color="primary" component={Link} to={`/students/${id}/add-intervention`} style={{ marginBottom: '16px' }}>
+                            Añadir Intervención
+                        </Button>
+                        <Typography variant="h6" gutterBottom>
+                            Lista de Intervenciones
+                        </Typography>
+                        <List>
+                            {interventions.map(intervention => (
+                                <ListItem key={intervention.id}>
+                                    <ListItemText 
+                                        primary={intervention.description} 
+                                        secondary={<span>{new Date(intervention.date).toLocaleString()}</span>}
+                                    />
+                                    <Button variant="contained" color="secondary" component={Link} to={`/students/${id}/edit-intervention/${intervention.id}`} style={{ marginRight: '8px' }}>
+                                        Editar
+                                    </Button>
+                                    <Button variant="contained" color="error" onClick={() => handleDelete(intervention.id)}>
+                                        Eliminar
+                                    </Button>
+                                </ListItem>
+                            ))}
+                        </List>
+                    </Paper>
+                </Grid>
+            </Grid>
             <Dialog open={open} onClose={handleClose}>
                 <DialogTitle>Confirmar Eliminación</DialogTitle>
                 <DialogContent>
