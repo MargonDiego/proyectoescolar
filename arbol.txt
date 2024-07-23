@@ -1,0 +1,81 @@
+TrabajoApp/
+├── .git/
+├── node_modules/
+├── public/
+│   ├── index.html
+│   └── ...
+├── src/
+│   ├── components/
+│   │   ├── core/
+│   │   ├── integrated/
+│   │   │   ├── InterventionCalendar/
+│   │   │   │   └── InterventionCalendar.jsx
+│   │   │   ├── InterventionList/
+│   │   │   │   └── InterventionList.jsx
+│   │   │   ├── Notifications/
+│   │   │   │   └── Notifications.jsx
+│   │   │   ├── StudentCard/
+│   │   │   │   └── StudentCard.jsx
+│   │   │   └── UserCard/
+│   │   │   │   └── UserCard.jsx
+│   │   └── layout/
+│   │   │    ├── NavBar/
+│   │   │ 	  │    └── NavBar.jsx
+│   │   │    └── UserManagementLayout/
+│   │   │   │   └── UserManagementLayout.jsx
+│   ├── contexts/
+│   │   ├── AuthContext/
+│   │   │   └── AuthContext.js
+│   │   └── NotificationContext/
+│   │   │   └── NotificationContext.jsx
+│   ├── hooks/
+│   │   └── useAuth/
+│   │   │   └── useAuth.js
+│   ├── pages/
+│   │   ├── Auth/
+│   │   │   ├── components/
+│   │   │   │   ├── LoginForm.jsx
+│   │   │   │   ├── RecoverPasswordForm.jsx
+│   │   │   │   └── RegisterForm.jsx
+│   │   │   └── Auth.jsx
+│   │   ├── Dashboard/
+│   │   │   ├── DashboardHeader.jsx
+│   │   │   ├── IncidentTypeChart.jsx
+│   │   │   ├── InterventionStats.jsx
+│   │   │   ├── QuickActions.jsx
+│   │   │   ├── RecentInterventions.jsx
+│   │   │   ├── StudentSummary.jsx
+│   │   │   ├── TrendAnalysis.jsx
+│   │   │   └── Dashboard.jsx
+│   │   ├── Profile/
+│   │   │   └── Profile.jsx
+│   │   ├── Student/
+│   │   │   ├── AddStudent.jsx
+│   │   │   ├── EditStudent.jsx
+│   │   │   ├── StudentList.jsx
+│   │   │   └── ViewStudent.jsx
+│   │   ├── Intervention
+│   │   │   ├── AddIntervention.jsx
+│   │   │   └── EditIntervention.jsx
+│   │   └── UserManagement/
+│   │   │   ├── DashboardSummary.jsx
+│   │   │   ├── UserFormDialog.jsx
+│   │   │   ├── UserManagement.jsx
+│   │   │   └── UserTable.jsx
+│   ├── routes/
+│   ├── services/
+│   ├── utils/
+│   ├── App.css
+│   ├── App.jsx
+│   ├── App.test.js
+│   ├── index.css
+│   ├── index.js
+│   ├── logo.svg
+│   ├── reportWebVitals.js
+│   └── setupTests.js
+├── .gitattributes
+├── .gitignore
+├── arbol.txt
+├── package.json
+├── package-lock.json
+└── README.md
