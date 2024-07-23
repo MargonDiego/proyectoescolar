@@ -1,12 +1,14 @@
 import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import {
-  Container, Typography, TextField, Button, MenuItem, Box, List, ListItem, ListItemText, 
+  Container, Typography, TextField, Button, Box, List, ListItem, ListItemText, 
   ListItemAvatar, Avatar, Divider, Chip, IconButton, Tooltip, Snackbar, Alert, Card, CardContent, Stepper, 
-  Step, StepLabel, StepContent
+  Step, StepLabel, StepContent, MenuItem
 } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext/AuthContext';
+import { useStudents } from '../../hooks/useStudents/useStudents';
+import { useInterventions } from '../../hooks/useInterventions/useInterventions';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import SendIcon from '@mui/icons-material/Send';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -38,6 +40,8 @@ const AddIntervention = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
+  const { students } = useStudents();
+  const { addIntervention, isLoading } = useInterventions();
 
   const [intervention, setIntervention] = useState({
     title: '',
@@ -46,7 +50,8 @@ const AddIntervention = () => {
     priority: 'Medium',
     files: [],
     status: 'Started',
-    createdBy: user?.name || 'Unknown',
+    createdBy: user?.id,
+    studentId: id,
   });
 
   const [comments, setComments] = useState([]);
@@ -85,14 +90,18 @@ const AddIntervention = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Intervención añadida:', intervention);
-    console.log('Comentarios:', comments);
-    setOpenSnackbar(true);
-    setSnackbarMessage('Intervención guardada exitosamente');
-    // Aquí debería ir la lógica para guardar la intervención en el backend
-    setTimeout(() => navigate(`/students/${id}`), 2000);
+    try {
+      await addIntervention({ ...intervention, comments });
+      setSnackbarMessage('Intervención guardada exitosamente');
+      setOpenSnackbar(true);
+      setTimeout(() => navigate(`/students/${id}`), 2000);
+    } catch (error) {
+      console.error('Error al guardar la intervención:', error);
+      setSnackbarMessage('Error al guardar la intervención');
+      setOpenSnackbar(true);
+    }
   };
 
   const handleNext = () => {

@@ -1,3 +1,4 @@
+// src/pages/Dashboard/TrendAnalysis.jsx
 import React from 'react';
 import { Line } from 'react-chartjs-2';
 import { Typography, Box } from '@mui/material';
@@ -5,10 +6,9 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const TrendAnalysis = ({ events }) => {
-  // Procesamos los eventos para obtener datos por mes
-  const monthlyData = events.reduce((acc, event) => {
-    const month = new Date(event.start).toLocaleString('default', { month: 'short' });
+const TrendAnalysis = ({ interventions }) => {
+  const monthlyData = interventions.reduce((acc, intervention) => {
+    const month = new Date(intervention.createdAt).toLocaleString('default', { month: 'short' });
     acc[month] = (acc[month] || 0) + 1;
     return acc;
   }, {});

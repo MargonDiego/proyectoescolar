@@ -1,4 +1,5 @@
-import React, { useContext, useState, useEffect } from 'react';
+// src/pages/Dashboard/Dashboard.jsx
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { Container, Typography, Grid, useTheme } from '@mui/material';
 import { AuthContext } from '../../contexts/AuthContext/AuthContext';
@@ -9,6 +10,8 @@ import StudentSummary from './StudentSummary';
 import IncidentTypeChart from './IncidentTypeChart';
 import TrendAnalysis from './TrendAnalysis';
 import DashboardHeader from './DashboardHeader';
+import { useStudents } from '../../hooks/useStudents/useStudents';
+import { useInterventions } from '../../hooks/useInterventions/useInterventions';
 
 const StyledContainer = styled(Container)`
   margin-top: ${({ theme }) => theme.spacing(4)};
@@ -40,38 +43,15 @@ const ComponentWrapper = styled.div`
 const Dashboard = () => {
   const theme = useTheme();
   const { user } = useContext(AuthContext);
-  const [events, setEvents] = useState([]);
-  const [students, setStudents] = useState([]);
-  const [incidentTypes, setIncidentTypes] = useState({});
+  const { students, isLoading: studentsLoading } = useStudents();
+  const { interventions, isLoading: interventionsLoading } = useInterventions();
 
-  useEffect(() => {
-    // Simulación de datos
-    const eventsData = [
-      { id: 1, title: 'Bullying Verbal', start: new Date(), end: new Date(), studentName: 'Estudiante Uno', description: 'Insultos en clase', type: 'Bullying' },
-      { id: 2, title: 'Conflicto entre Estudiantes', start: new Date(), end: new Date(), studentName: 'Estudiante Dos', description: 'Discusión en el patio', type: 'Conflicto' },
-      { id: 3, title: 'Daño a Propiedad Escolar', start: new Date(), end: new Date(), studentName: 'Estudiante Tres', description: 'Grafiti en baños', type: 'Vandalismo' }
-    ];
-    setEvents(eventsData);
+  if (studentsLoading || interventionsLoading) {
+    return <Typography>Cargando datos...</Typography>;
+  }
 
-    const studentsData = [
-      { id: 1, name: 'Estudiante Uno', course: 'Curso 1', incidentsCount: 2 },
-      { id: 2, name: 'Estudiante Dos', course: 'Curso 1', incidentsCount: 1 },
-      { id: 3, name: 'Estudiante Tres', course: 'Curso 2', incidentsCount: 3 }
-    ];
-    setStudents(studentsData);
-
-    const incidentTypesData = {
-      'Bullying': 10,
-      'Conflicto': 5,
-      'Vandalismo': 3,
-      'Absentismo': 7,
-      'Otros': 2
-    };
-    setIncidentTypes(incidentTypesData);
-  }, []);
-
-  const totalInterventions = events.length;
-  const interventionsToday = events.filter(event => new Date(event.start).toDateString() === new Date().toDateString()).length;
+  const totalInterventions = interventions.length;
+  const interventionsToday = interventions.filter(event => new Date(event.start).toDateString() === new Date().toDateString()).length;
   const totalStudents = students.length;
   const courses = students.reduce((acc, student) => {
     acc[student.course] = (acc[student.course] || 0) + 1;
@@ -94,7 +74,7 @@ const Dashboard = () => {
         <Grid item xs={12} md={6}>
           <StyledPaper>
             <ComponentWrapper>
-              <IncidentTypeChart incidentTypes={incidentTypes} />
+              <IncidentTypeChart interventions={interventions} />
             </ComponentWrapper>
           </StyledPaper>
         </Grid>
@@ -103,7 +83,7 @@ const Dashboard = () => {
           <StyledPaper>
             <Typography variant="h6" gutterBottom>Calendario de Incidentes</Typography>
             <div style={{ height: '100%', width: '100%' }}>
-              <InterventionCalendar events={events} />
+              <InterventionCalendar events={interventions} />
             </div>
           </StyledPaper>
         </Grid>
@@ -111,7 +91,7 @@ const Dashboard = () => {
         <Grid item xs={12} md={6}>
           <StyledPaper>
             <ComponentWrapper>
-              <RecentInterventions interventions={events} />
+              <RecentInterventions interventions={interventions} />
             </ComponentWrapper>
           </StyledPaper>
         </Grid>
@@ -119,7 +99,7 @@ const Dashboard = () => {
         <Grid item xs={12} md={6}>
           <StyledPaper>
             <ComponentWrapper>
-              <TrendAnalysis events={events} />
+              <TrendAnalysis interventions={interventions} />
             </ComponentWrapper>
           </StyledPaper>
         </Grid>

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { 
-  Container, Typography, Grid, TextField, MenuItem, Button, Paper, Snackbar, Alert, Box,
+  Container, Typography, Grid, TextField, Button, Paper, Snackbar, Alert, Box,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, InputAdornment,
   Tooltip, Fade, useTheme, useMediaQuery, IconButton, Chip,
-  LinearProgress, TablePagination, Backdrop, CircularProgress
+  LinearProgress, TablePagination, Backdrop, CircularProgress, MenuItem
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
@@ -15,6 +15,7 @@ import CakeIcon from '@mui/icons-material/Cake';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SortIcon from '@mui/icons-material/Sort';
+import { useStudents } from '../../hooks/useStudents/useStudents';
 
 const StyledContainer = styled(Container)`
   margin-top: ${({ theme }) => theme.spacing(4)};
@@ -67,13 +68,12 @@ const AnimatedButton = styled(Button)`
 `;
 
 const StudentList = () => {
-    const [students, setStudents] = useState([]);
+    const { students, isLoading, error, deleteStudent } = useStudents();
     const [filteredStudents, setFilteredStudents] = useState([]);
     const [search, setSearch] = useState('');
     const [course, setCourse] = useState('');
     const [age, setAge] = useState('');
     const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [orderBy, setOrderBy] = useState('lastName');
@@ -82,39 +82,10 @@ const StudentList = () => {
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     useEffect(() => {
-        const fetchStudents = async () => {
-            setLoading(true);
-            // Simulamos una carga de datos
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            const studentsData = [
-                {
-                    id: 1,
-                    firstName: 'Juan',
-                    lastName: 'Pérez',
-                    rut: '12345678-9',
-                    course: 'Primero Medio',
-                    phone: '123456789',
-                    dob: '2005-05-20',
-                    medicalHistory: 'Asma, Diabetes'
-                },
-                {
-                    id: 2,
-                    firstName: 'María',
-                    lastName: 'García',
-                    rut: '98765432-1',
-                    course: 'Segundo Medio',
-                    phone: '987654321',
-                    dob: '2004-04-15',
-                    medicalHistory: 'Alergias a Polen'
-                },
-            ];
-            setStudents(studentsData);
-            setFilteredStudents(studentsData);
-            setLoading(false);
-            setOpenSnackbar(true);
-        };
-        fetchStudents();
-    }, []);
+        if (students) {
+            setFilteredStudents(students);
+        }
+    }, [students]);
 
     const handleSearchChange = (e) => {
         setSearch(e.target.value);
@@ -175,6 +146,17 @@ const StudentList = () => {
         });
         setFilteredStudents(sortedStudents);
     };
+
+    const handleDelete = async (id) => {
+        try {
+            await deleteStudent(id);
+            setOpenSnackbar(true);
+        } catch (error) {
+            console.error('Error deleting student:', error);
+        }
+    };
+
+    if (error) return <Typography color="error">Error al cargar los estudiantes: {error.message}</Typography>;
 
     return (
         <StyledContainer>
@@ -251,7 +233,7 @@ const StudentList = () => {
                             </Tooltip>
                         </Box>
                     </StyledPaper>
-                    {loading ? (
+                    {isLoading ? (
                         <Box sx={{ width: '100%', mt: 3 }}>
                             <LinearProgress />
                         </Box>
@@ -326,7 +308,7 @@ const StudentList = () => {
             </Snackbar>
             <Backdrop
                 sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-                open={loading}
+                open={isLoading}
             >
                 <CircularProgress color="inherit" />
             </Backdrop>

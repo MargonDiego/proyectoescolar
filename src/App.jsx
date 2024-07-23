@@ -1,10 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
-import { CssBaseline, Box, IconButton } from '@mui/material';
+import { CssBaseline, Box } from '@mui/material';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import { ThemeProvider as StyledThemeProvider } from 'styled-components';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { lightTheme, darkTheme } from './theme';
 import Auth from './pages/Auth/Auth';
 import NavBar from './components/layout/NavBar/NavBar';
@@ -19,6 +17,7 @@ import EditIntervention from './pages/Intervention/EditIntervention';
 import UserManagement from './pages/UserManagement/UserManagement';
 import { AuthContext } from './contexts/AuthContext/AuthContext';
 import { NotificationProvider } from './contexts/NotificationContext/NotificationContext';
+import ThemeSwitcher from './components/integrated/ThemeSwitcher/ThemeSwitcher';
 
 const navBarHeight = 64;
 
@@ -26,13 +25,10 @@ const AppContent = ({ toggleTheme, theme }) => {
     const { user } = useContext(AuthContext);
 
     return (
-        <Box sx={{ backgroundColor: 'background.default', minHeight: '100vh' }}>
+        <Box sx={{ backgroundColor: theme.palette.background.default, minHeight: '100vh' }}>
             <CssBaseline />
             {user && <NavBar />}
             <Box sx={{ pt: `${navBarHeight}px` }}>
-                <IconButton sx={{ ml: 1 }} onClick={toggleTheme} color="inherit">
-                    {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-                </IconButton>
                 <Routes>
                     <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Auth />} />
                     <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/" />} />
@@ -46,6 +42,7 @@ const AppContent = ({ toggleTheme, theme }) => {
                     <Route path="/users" element={user && user.role === 'admin' ? <UserManagement /> : <Navigate to="/" />} />
                 </Routes>
             </Box>
+            <ThemeSwitcher toggleTheme={toggleTheme} theme={theme} />
         </Box>
     );
 };

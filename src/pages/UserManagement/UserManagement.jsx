@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import {
   Typography, Box, TextField, Button, Paper, Dialog, DialogContent, DialogTitle, DialogActions, DialogContentText,
@@ -9,6 +9,7 @@ import UserTable from './UserTable';
 import UserFormDialog from './UserFormDialog';
 import UserCard from '../../components/integrated/UserCard/UserCard';
 import DashboardSummary from './DashboardSummary';
+import { useUsers } from '../../hooks/useUsers/useUsers';
 
 const StyledCard = styled(Card)(({ theme }) => ({
   height: '100%',
@@ -37,7 +38,7 @@ const SearchBox = styled(Box)(({ theme }) => ({
 }));
 
 const UserManagement = () => {
-  const [users, setUsers] = useState([]);
+  const { users, isLoading, error, addUser, updateUser, deleteUser } = useUsers();
   const [open, setOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
@@ -47,26 +48,7 @@ const UserManagement = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [filters, setFilters] = useState({ role: '', status: '' });
-  const [loading, setLoading] = useState(true);
 
-  const theme = useTheme();
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
-    setLoading(true);
-    // Simulación de llamada a API
-    setTimeout(() => {
-      setUsers([
-        { id: 1, firstName: 'Admin', lastName: 'User', email: 'admin@example.com', rut: '12345678-9', role: 'admin', avatar: 'https://via.placeholder.com/150', status: 'active' },
-        { id: 2, firstName: 'Regular', lastName: 'User', email: 'user@example.com', rut: '98765432-1', role: 'user', avatar: 'https://via.placeholder.com/150', status: 'active' },
-        { id: 3, firstName: 'View', lastName: 'Only', email: 'view@example.com', rut: '11223344-5', role: 'viewer', avatar: 'https://via.placeholder.com/150', status: 'inactive' },
-      ]);
-      setLoading(false);
-    }, 1000);
-  };
 
   const handleClickOpen = () => {
     setEditMode(false);
@@ -91,33 +73,32 @@ const UserManagement = () => {
   };
 
   const handleAddUser = () => {
-    setUsers([...users, { ...newUser, id: users.length + 1 }]);
+    addUser(newUser);
     handleClose();
   };
 
   const handleEditUser = () => {
-    setUsers(users.map(user => user.id === currentUser.id ? newUser : user));
+    updateUser(newUser);
     handleClose();
   };
 
   const handleDeleteUser = () => {
-    setUsers(users.filter(user => user.id !== currentUser.id));
+    deleteUser(currentUser.id);
     setDeleteOpen(false);
   };
 
   const exportUsers = () => {
-    // Lógica para exportar usuarios
     console.log("Exportando usuarios...");
   };
 
-  const filteredUsers = users.filter((user) =>
+  const filteredUsers = users?.filter((user) =>
     (user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.rut.toLowerCase().includes(searchTerm.toLowerCase())) &&
     (filters.role === '' || user.role === filters.role) &&
     (filters.status === '' || user.status === filters.status)
-  );
+  ) || [];
 
   return (
     <Box sx={{ width: '100%', p: 3 }}>
@@ -189,7 +170,7 @@ const UserManagement = () => {
           </Grid>
         </Box>
         
-        <Fade in={!loading}>
+        <Fade in={!isLoading}>
           <Box>
             <UserTable
               users={filteredUsers}
@@ -204,9 +185,9 @@ const UserManagement = () => {
         </Fade>
       </Paper>
       
-      <Zoom in={!loading}>
+      <Zoom in={!isLoading}>
         <Box mb={4}>
-          <DashboardSummary users={users} />
+          <DashboardSummary users={users || []} />
         </Box>
       </Zoom>
       

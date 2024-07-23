@@ -8,6 +8,8 @@ import {
 } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext/AuthContext';
+import { useStudents } from '../../hooks/useStudents/useStudents';
+import { useInterventions } from '../../hooks/useInterventions/useInterventions';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
@@ -28,7 +30,7 @@ const StyledContainer = styled(Container)(({ theme }) => ({
 const StyledCard = styled(Card)(({ theme }) => ({
   borderRadius: '16px',
   boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-  background: 'linear-gradient(145deg, #ffffff, #f0f0f0)',
+  background: 'linear-gradient(to right bottom, #ffffff, #f8f9fa)',
 }));
 
 const InfoItem = styled(Box)(({ theme }) => ({
@@ -60,19 +62,9 @@ const EditIntervention = () => {
     const { id, interventionId } = useParams(); 
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
-    const isAdmin = user?.role === 'admin';
-
-    const [intervention, setIntervention] = useState({
-        title: '',
-        description: '',
-        assignedTo: '',
-        priority: 'Medium',
-        files: [],
-        status: 'Started',
-        updatedBy: '',
-        createdAt: '',
-        updatedAt: '',
-    });
+    const { students } = useStudents();
+    const { interventions, updateIntervention, isLoading } = useInterventions();
+    const [intervention, setIntervention] = useState(null);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [newCommentFiles, setNewCommentFiles] = useState([]);
@@ -80,51 +72,20 @@ const EditIntervention = () => {
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
 
+    const isAdmin = user && user.role === 'admin';
+
     const priorities = ['Low', 'Medium', 'High'];
     const statuses = ['Started', 'In Progress', 'Resolved', 'Closed'];
 
     useEffect(() => {
-        const fetchIntervention = async () => {
-            // Simulated API call
-            const interventionData = {
-                id: interventionId,
-                studentId: id,
-                title: 'Sample Intervention',
-                description: 'This is a sample intervention description.',
-                assignedTo: 'John Doe',
-                priority: 'Medium',
-                status: 'In Progress',
-                files: [
-                    { name: 'document1.pdf', url: '#' },
-                    { name: 'image1.jpg', url: '#' }
-                ],
-                createdAt: '2023-07-01T10:00:00Z',
-                updatedAt: '2023-07-05T14:30:00Z',
-                updatedBy: 'Jane Smith'
-            };
-            setIntervention(interventionData);
-
-            const commentsData = [
-                { 
-                    id: 1, 
-                    text: 'Initial assessment completed', 
-                    author: 'Jane Smith', 
-                    date: '2023-07-01T11:00:00Z',
-                    files: [{ name: 'assessment.pdf', url: '#' }]
-                },
-                { 
-                    id: 2, 
-                    text: 'Follow-up meeting scheduled', 
-                    author: 'John Doe', 
-                    date: '2023-07-03T09:00:00Z',
-                    files: []
-                }
-            ];
-            setComments(commentsData);
-        };
-
-        fetchIntervention();
-    }, [interventionId, id]);
+        if (interventions) {
+            const currentIntervention = interventions.find(i => i.id.toString() === interventionId);
+            if (currentIntervention) {
+                setIntervention(currentIntervention);
+                setComments(currentIntervention.comments || []);
+            }
+        }
+    }, [interventionId, interventions]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -135,30 +96,52 @@ const EditIntervention = () => {
         setNewCommentFiles([...newCommentFiles, ...e.target.files]);
     };
 
-    const sendComment = () => {
+    const sendComment = async () => {
         if (newComment.trim()) {
             const comment = {
-                id: comments.length + 1,
+                id: Date.now(),
                 text: newComment,
                 author: user?.name || 'Unknown',
                 date: new Date().toISOString(),
                 files: newCommentFiles
             };
-            setComments([...comments, comment]);
+            const updatedComments = [...comments, comment];
+            setComments(updatedComments);
             setNewComment('');
             setNewCommentFiles([]);
-            setOpenSnackbar(true);
-            setSnackbarMessage('Comentario añadido exitosamente');
+            try {
+                await updateIntervention({ ...intervention, comments: updatedComments });
+                setOpenSnackbar(true);
+                setSnackbarMessage('Comentario añadido exitosamente');
+            } catch (error) {
+                console.error('Error al añadir comentario:', error);
+                setSnackbarMessage('Error al añadir comentario');
+                setOpenSnackbar(true);
+            }
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Intervención actualizada:', intervention);
-        setIsEditing(false);
-        setOpenSnackbar(true);
-        setSnackbarMessage('Intervención actualizada exitosamente');
+        try {
+            await updateIntervention(intervention);
+            setIsEditing(false);
+            setOpenSnackbar(true);
+            setSnackbarMessage('Intervención actualizada exitosamente');
+        } catch (error) {
+            console.error('Error al actualizar intervención:', error);
+            setSnackbarMessage('Error al actualizar intervención');
+            setOpenSnackbar(true);
+        }
     };
+
+    if (isLoading) {
+        return <Typography>Cargando...</Typography>;
+    }
+
+    if (!intervention) {
+        return <Typography>Intervención no encontrada</Typography>;
+    }
 
     return (
         <StyledContainer>
@@ -330,7 +313,7 @@ const EditIntervention = () => {
                                 <Button onClick={() => setIsEditing(false)} sx={{ mr: 1 }}>
                                     Cancelar
                                 </Button>
-                                <Button variant="contained" color="primary" type="submit">
+                                <Button type="submit" color="primary" variant="contained">
                                     Guardar Cambios
                                 </Button>
                             </Box>
@@ -417,7 +400,7 @@ const EditIntervention = () => {
                                 endIcon={<SendIcon />}
                                 onClick={sendComment}
                             >
-                                Enviar
+                            Enviar
                             </Button>
                         </Box>
                     </Box>

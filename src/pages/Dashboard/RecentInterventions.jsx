@@ -2,11 +2,10 @@ import React, { useContext } from 'react';
 import { Box, Typography, List, ListItem, ListItemText, ListItemAvatar, Avatar, Chip, IconButton, Tooltip } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import PersonIcon from '@mui/icons-material/Person';
-import WarningIcon from '@mui/icons-material/Warning';
-import InfoIcon from '@mui/icons-material/Info';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import { AuthContext } from '../../contexts/AuthContext/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const StyledListItem = styled(ListItem)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
@@ -18,22 +17,20 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
 
 const getIncidentSeverityColor = (severity) => {
   switch (severity) {
-    case 'alta':
-      return 'error';
-    case 'media':
-      return 'warning';
-    case 'baja':
-      return 'success';
-    default:
-      return 'default';
+    case 'Alta': return 'error';
+    case 'Media': return 'warning';
+    case 'Baja': return 'success';
+    default: return 'default';
   }
 };
 
 const RecentInterventions = ({ interventions }) => {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  // Filtramos las intervenciones para mostrar solo las del usuario actual
-  const userInterventions = interventions.filter(intervention => intervention.createdBy === user.id);
+  const userInterventions = interventions.filter(intervention => intervention.createdBy === user.id)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 5);
 
   return (
     <Box>
@@ -55,8 +52,8 @@ const RecentInterventions = ({ interventions }) => {
                     {intervention.title}
                     <Chip
                       size="small"
-                      label={intervention.type}
-                      color={getIncidentSeverityColor(intervention.severity)}
+                      label={intervention.priority}
+                      color={getIncidentSeverityColor(intervention.priority)}
                       sx={{ ml: 1 }}
                     />
                   </Typography>
@@ -66,20 +63,20 @@ const RecentInterventions = ({ interventions }) => {
                     <Typography component="span" variant="body2" color="text.primary">
                       {intervention.studentName}
                     </Typography>
-                    {" — "}{intervention.description}
+                    {" — "}{intervention.description.substring(0, 50)}...
                     <br />
-                    Fecha: {new Date(intervention.start).toLocaleString()}
+                    Fecha: {new Date(intervention.createdAt).toLocaleString()}
                   </React.Fragment>
                 }
               />
               <Box>
                 <Tooltip title="Ver detalles">
-                  <IconButton size="small" onClick={() => console.log('Ver detalles', intervention.id)}>
+                  <IconButton size="small" onClick={() => navigate(`/students/${intervention.studentId}/EditIntervention/${intervention.id}`)}>
                     <VisibilityIcon />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Editar intervención">
-                  <IconButton size="small" onClick={() => console.log('Editar', intervention.id)}>
+                  <IconButton size="small" onClick={() => navigate(`/students/${intervention.studentId}/EditIntervention/${intervention.id}`)}>
                     <EditIcon />
                   </IconButton>
                 </Tooltip>
@@ -88,10 +85,7 @@ const RecentInterventions = ({ interventions }) => {
           ))}
         </List>
       ) : (
-        <Box display="flex" alignItems="center" justifyContent="center" height={200}>
-          <InfoIcon color="info" sx={{ mr: 1 }} />
-          <Typography variant="body1">No has registrado intervenciones recientes.</Typography>
-        </Box>
+        <Typography variant="body1">No has registrado intervenciones recientes.</Typography>
       )}
     </Box>
   );

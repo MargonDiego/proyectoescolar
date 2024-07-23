@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+// src/components/integrated/InterventionList/InterventionList.jsx
+import React from 'react';
 import styled from 'styled-components';
 import { 
   Typography, Paper, Table, TableBody, TableCell, TableContainer, 
@@ -11,6 +12,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import { useInterventions } from '../../../hooks/useInterventions/useInterventions';
 
 const StyledContainer = styled.div`
   margin-top: ${({ theme }) => theme.spacing(4)};
@@ -58,38 +60,12 @@ const statusIcons = {
 const InterventionList = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [interventions, setInterventions] = useState([]);
+    const { interventions, isLoading, error, deleteIntervention } = useInterventions();
 
-    useEffect(() => {
-        const fetchInterventions = async () => {
-            // Simulated API call
-            const interventionData = [
-                {
-                    id: 1,
-                    studentId: id,
-                    title: 'Intervención 1',
-                    description: 'Descripción detallada de la Intervención 1. Esta intervención se centra en...',
-                    priority: 'Alta',
-                    status: 'Iniciado',
-                    createdBy: 'Juan Pérez',
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 2,
-                    studentId: id,
-                    title: 'Intervención 2',
-                    description: 'Descripción detallada de la Intervención 2. Los objetivos principales son...',
-                    priority: 'Media',
-                    status: 'En Progreso',
-                    createdBy: 'María López',
-                    createdAt: new Date(Date.now() - 86400000).toISOString() // 1 day ago
-                }
-            ];
-            setInterventions(interventionData);
-        };
+    if (isLoading) return <Typography>Cargando intervenciones...</Typography>;
+    if (error) return <Typography color="error">Error al cargar las intervenciones: {error.message}</Typography>;
 
-        fetchInterventions();
-    }, [id]);
+    const studentInterventions = interventions.filter(intervention => intervention.studentId.toString() === id);
 
     return (
         <StyledContainer>
@@ -101,14 +77,14 @@ const InterventionList = () => {
                     variant="contained" 
                     color="primary" 
                     component={Link} 
-                    to={`/students/${id}/Addintervention`}
+                    to={`/students/${id}/AddIntervention`}
                     startIcon={<AddIcon />}
                 >
                     Nueva Intervención
                 </ActionButton>
             </Box>
             <Grid container spacing={3}>
-                {interventions.map((intervention) => (
+                {studentInterventions.map((intervention) => (
                     <Grid item xs={12} md={6} key={intervention.id}>
                         <StyledCard>
                             <CardContent>
@@ -143,7 +119,7 @@ const InterventionList = () => {
                                 <Box mt={2} display="flex" justifyContent="flex-end">
                                     <Tooltip title="Ver detalles">
                                         <IconButton 
-                                            onClick={() => navigate(`/students/${id}/Editintervention/${intervention.id}`)}
+                                            onClick={() => navigate(`/students/${id}/EditIntervention/${intervention.id}`)}
                                             color="primary"
                                         >
                                             <VisibilityIcon />

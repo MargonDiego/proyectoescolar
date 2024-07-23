@@ -13,7 +13,7 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
 }));
 
 const StudentSummary = ({ totalStudents, courses, students }) => {
-  const studentsWithIncidents = students.filter(student => student.incidentsCount > 0).length;
+  const studentsWithIncidents = students.filter(student => student.incidents && student.incidents.length > 0).length;
   const percentageWithIncidents = ((studentsWithIncidents / totalStudents) * 100).toFixed(1);
 
   return (
@@ -80,20 +80,20 @@ const StudentSummary = ({ totalStudents, courses, students }) => {
       </Typography>
       <List>
         {students
-          .sort((a, b) => b.incidentsCount - a.incidentsCount)
+          .sort((a, b) => (b.incidents ? b.incidents.length : 0) - (a.incidents ? a.incidents.length : 0))
           .slice(0, 3)
           .map((student) => (
             <StyledListItem key={student.id}>
               <ListItemAvatar>
-                <Avatar>{student.name.charAt(0)}</Avatar>
+                <Avatar>{student.firstName[0]}</Avatar>
               </ListItemAvatar>
               <ListItemText 
-                primary={student.name} 
-                secondary={`${student.course} - ${student.incidentsCount} incidentes`}
+                primary={`${student.firstName} ${student.lastName}`} 
+                secondary={`${student.course} - ${student.incidents ? student.incidents.length : 0} incidentes`}
               />
               <Chip 
-                label={student.incidentsCount} 
-                color={student.incidentsCount > 2 ? "error" : "warning"} 
+                label={student.incidents ? student.incidents.length : 0} 
+                color={student.incidents && student.incidents.length > 2 ? "error" : "warning"} 
                 size="small" 
               />
             </StyledListItem>

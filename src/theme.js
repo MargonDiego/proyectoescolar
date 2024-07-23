@@ -5,22 +5,22 @@ const lightTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#1976d2',
+      main: '#5e0b15',
     },
     secondary: {
-      main: '#dc004e',
+      main: '#90323d',
     },
     background: {
-      default: '#f5f5f5',
-      paper: '#ffffff',
+      default: '#d9cab3',
+      paper: '#bc8034',
     },
     text: {
-      primary: '#333333',
-      secondary: '#666666',
+      primary: '#5e0b15', // Ajustar para mejorar contraste
+      secondary: '#90323d', // Ajustar para mejorar contraste
     },
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Open Sans", "Roboto", "Helvetica", "Arial", sans-serif',
   },
   components: {
     MuiButton: {
@@ -37,22 +37,22 @@ const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#90caf9',
+      main: '#0d0630',
     },
     secondary: {
-      main: '#f48fb1',
+      main: '#18314f',
     },
     background: {
-      default: '#303030',
-      paper: '#424242',
+      default: '#384e77',
+      paper: '#8bbeb2',
     },
     text: {
-      primary: '#ffffff',
-      secondary: '#b0bec5',
+      primary: '#e6f9af',
+      secondary: '#8bbeb2',
     },
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Open Sans", "Roboto", "Helvetica", "Arial", sans-serif',
   },
   components: {
     MuiButton: {

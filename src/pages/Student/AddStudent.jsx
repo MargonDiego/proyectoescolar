@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Person, School, LocalHospital, ContactPhone } from '@mui/icons-material';
+import { useStudents } from '../../hooks/useStudents/useStudents';
 
 const StyledContainer = styled(Container)`
   margin-top: ${({ theme }) => theme.spacing(4)};
@@ -39,7 +40,6 @@ const steps = [
 const AddStudent = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [student, setStudent] = useState({
     firstName: '',
     lastName: '',
@@ -58,6 +58,7 @@ const AddStudent = () => {
   });
 
   const navigate = useNavigate();
+  const { addStudent, isLoading } = useStudents();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -74,12 +75,13 @@ const AddStudent = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    console.log('Estudiante añadido:', student);
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Simula una operación asíncrona
-    setOpenSnackbar(true);
-    setLoading(false);
-    navigate('/students');
+    try {
+      await addStudent(student);
+      setOpenSnackbar(true);
+      setTimeout(() => navigate('/students'), 2000);
+    } catch (error) {
+      console.error('Error adding student:', error);
+    }
   };
 
   const handleCloseSnackbar = () => {
@@ -277,10 +279,10 @@ const AddStudent = () => {
               variant="contained"
               color="primary"
               onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext}
-              disabled={loading}
-              startIcon={loading ? <CircularProgress size={20} /> : null}
+              disabled={isLoading}
+              startIcon={isLoading ? <CircularProgress size={20} /> : null}
             >
-              {activeStep === steps.length - 1 ? (loading ? 'Enviando...' : 'Añadir Estudiante') : 'Siguiente'}
+              {activeStep === steps.length - 1 ? (isLoading ? 'Enviando...' : 'Añadir Estudiante') : 'Siguiente'}
             </Button>
           </ButtonContainer>
         </form>

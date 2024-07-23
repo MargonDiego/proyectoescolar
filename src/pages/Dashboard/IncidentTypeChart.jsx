@@ -1,3 +1,4 @@
+// src/pages/Dashboard/IncidentTypeChart.jsx
 import React from 'react';
 import styled from 'styled-components';
 import { Typography, Box } from '@mui/material';
@@ -10,7 +11,12 @@ const ChartContainer = styled(Box)`
   height: 300px;
 `;
 
-const IncidentTypeChart = ({ incidentTypes }) => {
+const IncidentTypeChart = ({ interventions }) => {
+  const incidentTypes = interventions.reduce((acc, intervention) => {
+    acc[intervention.type] = (acc[intervention.type] || 0) + 1;
+    return acc;
+  }, {});
+
   const data = {
     labels: Object.keys(incidentTypes),
     datasets: [

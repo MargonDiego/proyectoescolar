@@ -1,11 +1,18 @@
-// src/hooks/useUsers.js
+// src/hooks/useUsers/useUsers.js
 import { useQuery, useMutation, useQueryClient } from 'react-query';
+
+// Datos iniciales de usuarios
+const initialUsers = [
+  { id: 1, firstName: 'Admin', lastName: 'User', email: 'admin@example.com', rut: '12345678-9', role: 'admin', avatar: 'https://via.placeholder.com/150', status: 'active' },
+  { id: 2, firstName: 'Regular', lastName: 'User', email: 'user@example.com', rut: '98765432-1', role: 'user', avatar: 'https://via.placeholder.com/150', status: 'active' },
+  { id: 3, firstName: 'View', lastName: 'Only', email: 'view@example.com', rut: '11223344-5', role: 'viewer', avatar: 'https://via.placeholder.com/150', status: 'inactive' },
+];
 
 // Simulación de llamadas a API
 const fetchUsers = async () => {
   // Simula un retraso de red
   await new Promise(resolve => setTimeout(resolve, 1000));
-  return initialUsers; // Asume que initialUsers está definido en algún lugar
+  return initialUsers;
 };
 
 const addUser = async (newUser) => {

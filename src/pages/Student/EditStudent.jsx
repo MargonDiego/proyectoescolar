@@ -13,6 +13,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import KeyboardArrowUp from '@mui/icons-material/KeyboardArrowUp';
+import { useStudents } from '../../hooks/useStudents/useStudents';
 
 const StyledContainer = styled.div`
   margin-top: ${({ theme }) => theme.spacing(4)};
@@ -52,57 +53,42 @@ const ScrollTop = styled(Fab)`
 
 const EditStudent = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
+    const { students, updateStudent, isLoading } = useStudents();
     const [student, setStudent] = useState(null);
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [activeStep, setActiveStep] = useState(0);
     const [showScrollTop, setShowScrollTop] = useState(false);
-    const navigate = useNavigate();
 
     useEffect(() => {
-        // Simulated API call
-        const fetchStudent = async () => {
-            const studentData = {
-                id: 1,
-                firstName: 'Juan',
-                lastName: 'Pérez',
-                rut: '12345678-9',
-                course: 'Primero Medio',
-                phone: '123456789',
-                dob: '2005-05-20',
-                medicalHistory: 'Asma, Diabetes',
-                address: 'Calle Falsa 123',
-                emergencyContact: 'María Pérez',
-                emergencyPhone: '987654321',
-                bloodType: 'O+',
-                medications: 'Insulina',
-                notes: 'Ninguna',
-                allergies: 'Polen'
-            };
-            setStudent(studentData);
-        };
-        fetchStudent();
+        const currentStudent = students.find(s => s.id.toString() === id);
+        if (currentStudent) {
+            setStudent(currentStudent);
+        }
+    }, [id, students]);
 
+    useEffect(() => {
         const handleScroll = () => {
             setShowScrollTop(window.pageYOffset > 300);
         };
 
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [id]);
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setStudent({ ...student, [name]: value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Estudiante editado:', student);
-        setOpenSnackbar(true);
-    };
-
-    const handleCloseSnackbar = () => {
-        setOpenSnackbar(false);
+        try {
+            await updateStudent(student);
+            setOpenSnackbar(true);
+        } catch (error) {
+            console.error('Error updating student:', error);
+        }
     };
 
     const handleNext = () => {
@@ -120,7 +106,12 @@ const EditStudent = () => {
         });
     };
 
-    if (!student) return <Typography variant="h6">Cargando...</Typography>;
+    const handleCloseSnackbar = () => {
+        setOpenSnackbar(false);
+    };
+
+    if (isLoading) return <Typography variant="h6">Cargando...</Typography>;
+    if (!student) return <Typography variant="h6">Estudiante no encontrado</Typography>;
 
     const steps = [
         {
