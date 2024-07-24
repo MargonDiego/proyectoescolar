@@ -1,4 +1,3 @@
-// src/hooks/useStudents.js
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 
 const initialStudents = [
@@ -34,6 +33,86 @@ const initialStudents = [
     medications: 'Antihistamínicos',
     notes: 'Requiere atención especial durante primavera'
   },
+  {
+    id: 3,
+    firstName: 'Pedro',
+    lastName: 'López',
+    rut: '11223344-5',
+    course: 'Tercero Medio',
+    phone: '555666777',
+    dob: '2003-08-10',
+    medicalHistory: 'Ninguna',
+    address: 'Pasaje Los Alamos 789',
+    emergencyContact: 'Ana López',
+    emergencyPhone: '777888999',
+    bloodType: 'B-',
+    medications: 'Ninguna',
+    notes: 'Estudiante destacado en matemáticas'
+  },
+  {
+    id: 4,
+    firstName: 'Carolina',
+    lastName: 'Martínez',
+    rut: '22334455-6',
+    course: 'Primero Medio',
+    phone: '111222333',
+    dob: '2005-11-30',
+    medicalHistory: 'Migrañas',
+    address: 'Calle del Sol 234',
+    emergencyContact: 'Roberto Martínez',
+    emergencyPhone: '444555666',
+    bloodType: 'AB+',
+    medications: 'Analgésicos para migrañas',
+    notes: 'Necesita un ambiente tranquilo durante episodios de migraña'
+  },
+  {
+    id: 5,
+    firstName: 'Diego',
+    lastName: 'Sánchez',
+    rut: '33445566-7',
+    course: 'Segundo Medio',
+    phone: '666777888',
+    dob: '2004-02-25',
+    medicalHistory: 'Fractura de brazo en 2022',
+    address: 'Avenida Central 567',
+    emergencyContact: 'Laura Sánchez',
+    emergencyPhone: '999000111',
+    bloodType: 'O-',
+    medications: 'Ninguna',
+    notes: 'Talentoso en artes visuales'
+  },
+  {
+    id: 6,
+    firstName: 'Valentina',
+    lastName: 'Rodríguez',
+    rut: '44556677-8',
+    course: 'Tercero Medio',
+    phone: '222333444',
+    dob: '2003-07-05',
+    medicalHistory: 'Ninguna',
+    address: 'Calle de la Luna 890',
+    emergencyContact: 'Carlos Rodríguez',
+    emergencyPhone: '555666777',
+    bloodType: 'A-',
+    medications: 'Ninguna',
+    notes: 'Excelente en matemáticas, tímida en situaciones sociales'
+  },
+  {
+    id: 7,
+    firstName: 'Mateo',
+    lastName: 'Fernández',
+    rut: '55667788-9',
+    course: 'Primero Medio',
+    phone: '777888999',
+    dob: '2005-09-15',
+    medicalHistory: 'TDAH',
+    address: 'Pasaje Las Flores 123',
+    emergencyContact: 'Isabel Fernández',
+    emergencyPhone: '333444555',
+    bloodType: 'B+',
+    medications: 'Medicamento para TDAH',
+    notes: 'Requiere apoyo adicional para concentrarse en clase'
+  }
 ];
 
 const fetchStudents = async () => {
@@ -59,7 +138,10 @@ const deleteStudent = async (studentId) => {
 export const useStudents = () => {
   const queryClient = useQueryClient();
 
-  const { data: students, isLoading, error } = useQuery('students', fetchStudents);
+  const { data: students = [], isLoading, error } = useQuery('students', fetchStudents, {
+    staleTime: Infinity,
+    cacheTime: Infinity,
+  });
 
   const addStudentMutation = useMutation(addStudent, {
     onSuccess: (newStudent) => {

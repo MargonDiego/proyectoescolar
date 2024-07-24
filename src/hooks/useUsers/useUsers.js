@@ -1,16 +1,14 @@
 // src/hooks/useUsers/useUsers.js
 import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { useState, useEffect } from 'react';
 
-// Datos iniciales de usuarios
 const initialUsers = [
-  { id: 1, firstName: 'Admin', lastName: 'User', email: 'admin@example.com', rut: '12345678-9', role: 'admin', avatar: 'https://via.placeholder.com/150', status: 'active' },
-  { id: 2, firstName: 'Regular', lastName: 'User', email: 'user@example.com', rut: '98765432-1', role: 'user', avatar: 'https://via.placeholder.com/150', status: 'active' },
-  { id: 3, firstName: 'View', lastName: 'Only', email: 'view@example.com', rut: '11223344-5', role: 'viewer', avatar: 'https://via.placeholder.com/150', status: 'inactive' },
+  { id: 1, firstName: 'Admin', lastName: 'User', email: 'admin@example.com', password: 'password', rut: '12345678-9', role: 'admin', avatar: 'https://via.placeholder.com/150', status: 'active' },
+  { id: 2, firstName: 'Regular', lastName: 'User', email: 'user@example.com', password: 'password', rut: '98765432-1', role: 'user', avatar: 'https://via.placeholder.com/150', status: 'active' },
+  { id: 3, firstName: 'View', lastName: 'Only', email: 'view@example.com', password: 'password', rut: '11223344-5', role: 'viewer', avatar: 'https://via.placeholder.com/150', status: 'inactive' },
 ];
 
-// Simulación de llamadas a API
 const fetchUsers = async () => {
-  // Simula un retraso de red
   await new Promise(resolve => setTimeout(resolve, 1000));
   return initialUsers;
 };
@@ -30,8 +28,25 @@ const deleteUser = async (userId) => {
   return userId;
 };
 
+const loginUser = async (credentials) => {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  const user = initialUsers.find(u => (u.email === credentials.emailOrRut || u.rut === credentials.emailOrRut) && u.password === credentials.password);
+  if (user) {
+    return { ...user, password: undefined };
+  }
+  throw new Error('Invalid credentials');
+};
+
 export const useUsers = () => {
   const queryClient = useQueryClient();
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    if (storedUser) {
+      setCurrentUser(storedUser);
+    }
+  }, []);
 
   const { data: users, isLoading, error } = useQuery('users', fetchUsers);
 
@@ -57,12 +72,27 @@ export const useUsers = () => {
     },
   });
 
+  const loginMutation = useMutation(loginUser, {
+    onSuccess: (user) => {
+      setCurrentUser(user);
+      localStorage.setItem('user', JSON.stringify(user));
+    },
+  });
+
+  const logout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('user');
+  };
+
   return {
     users,
+    currentUser,
     isLoading,
     error,
     addUser: addUserMutation.mutate,
     updateUser: updateUserMutation.mutate,
     deleteUser: deleteUserMutation.mutate,
+    login: loginMutation.mutate,
+    logout,
   };
 };

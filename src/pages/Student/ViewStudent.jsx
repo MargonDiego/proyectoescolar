@@ -1,33 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import styled from 'styled-components';
 import { 
   Typography, Button, Dialog, DialogActions, DialogContent, DialogContentText, 
   DialogTitle, Grid, Box, Snackbar, Alert, Tabs, Tab, Fade, CircularProgress, 
   TextField, Stepper, Step, StepLabel, StepContent, IconButton, 
-  Tooltip, Zoom, Fab
+  Tooltip, Zoom, Fab, Paper, Chip, Avatar, Card, CardContent, CardHeader,MenuItem
 } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import PersonIcon from '@mui/icons-material/Person';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import ListAltIcon from '@mui/icons-material/ListAlt';
 import EditIcon from '@mui/icons-material/Edit';
 import SchoolIcon from '@mui/icons-material/School';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import KeyboardArrowUp from '@mui/icons-material/KeyboardArrowUp';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import InterventionCalendar from '../../components/integrated/InterventionCalendar/InterventionCalendar';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import MiniInterventionCalendar from '../../components/integrated/MiniInterventionCalendar/MiniInterventionCalendar';
 import StudentCard from '../../components/integrated/StudentCard/StudentCard';
 import InterventionList from '../../components/integrated/InterventionList/InterventionList';
 import { useStudents } from '../../hooks/useStudents/useStudents';
 import { useInterventions } from '../../hooks/useInterventions/useInterventions';
+import { AuthContext } from '../../contexts/AuthContext/AuthContext';
 
 const StyledContainer = styled.div`
   margin-top: ${({ theme }) => theme.spacing(4)};
   margin-bottom: ${({ theme }) => theme.spacing(4)};
+  padding: ${({ theme }) => theme.spacing(3)};
+  background-color: ${({ theme }) => theme.palette.background.default};
 `;
 
-const StyledCard = styled.div`
+const StyledCard = styled(Card)`
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.1);
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -35,7 +38,6 @@ const StyledCard = styled.div`
   &:hover {
     transform: translateY(-5px);
   }
-  padding: ${({ theme }) => theme.spacing(3)};
 `;
 
 const StyledTextField = styled(TextField)`
@@ -57,68 +59,64 @@ const LoadingContainer = styled(Box)`
   background-color: ${({ theme }) => theme.palette.background.default};
 `;
 
+const InterventionSummary = styled(Paper)`
+  padding: ${({ theme }) => theme.spacing(2)};
+  margin-bottom: ${({ theme }) => theme.spacing(2)};
+  background-color: ${({ theme }) => theme.palette.background.paper};
+  border-radius: 8px;
+`;
+
 const ViewStudent = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { students = [], updateStudent, isLoading: studentsLoading } = useStudents();
-    const { interventions = [], deleteIntervention, isLoading: interventionsLoading } = useInterventions();
+    const { user } = useContext(AuthContext);
+    const { students, updateStudent, isLoading: studentsLoading, error: studentsError } = useStudents();
+    const { interventions, isLoading: interventionsLoading, error: interventionsError, deleteIntervention, addIntervention } = useInterventions(id);
     const [student, setStudent] = useState(null);
-    const [open, setOpen] = useState(false);
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [selectedIntervention, setSelectedIntervention] = useState(null);
-    const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
     const [tabValue, setTabValue] = useState(0);
     const [activeStep, setActiveStep] = useState(0);
     const [showScrollTop, setShowScrollTop] = useState(false);
 
     useEffect(() => {
-        if (students && students.length > 0) {
+        if (students.length > 0) {
             const currentStudent = students.find(s => s.id.toString() === id);
-            if (currentStudent) {
-                setStudent(currentStudent);
-            }
+            setStudent(currentStudent || null);
         }
     }, [id, students]);
 
     useEffect(() => {
-        const handleScroll = () => {
-            setShowScrollTop(window.pageYOffset > 300);
-        };
-
+        const handleScroll = () => setShowScrollTop(window.pageYOffset > 300);
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
     const handleDelete = (interventionId) => {
-        setOpen(true);
         setSelectedIntervention(interventionId);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-        setSelectedIntervention(null);
+        setOpenDeleteDialog(true);
     };
 
     const confirmDelete = async () => {
         try {
             await deleteIntervention(selectedIntervention);
-            setOpen(false);
-            setSelectedIntervention(null);
-            setOpenSnackbar(true);
-            setSnackbarMessage('Intervención eliminada exitosamente!');
+            setSnackbar({ open: true, message: 'Intervención eliminada exitosamente', severity: 'success' });
         } catch (error) {
-            console.error('Error deleting intervention:', error);
-            setSnackbarMessage('Error al eliminar la intervención');
-            setOpenSnackbar(true);
+            setSnackbar({ open: true, message: 'Error al eliminar la intervención', severity: 'error' });
+        } finally {
+            setOpenDeleteDialog(false);
+            setSelectedIntervention(null);
         }
     };
 
     const handleEventSelect = (event) => {
-        navigate(`/students/${id}/Editintervention/${event.interventionId}`);
+        navigate(`/students/${id}/EditIntervention/${event.id}`);
     };
 
+
     const handleCloseSnackbar = () => {
-        setOpenSnackbar(false);
+        setSnackbar(prev => ({ ...prev, open: false }));
     };
 
     const handleChangeTab = (event, newValue) => {
@@ -128,34 +126,31 @@ const ViewStudent = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setStudent({ ...student, [name]: value });
+        setStudent(prev => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             await updateStudent(student);
-            setSnackbarMessage('Estudiante actualizado exitosamente!');
-            setOpenSnackbar(true);
+            setSnackbar({ open: true, message: 'Estudiante actualizado exitosamente', severity: 'success' });
         } catch (error) {
-            console.error('Error updating student:', error);
+            setSnackbar({ open: true, message: 'Error al actualizar el estudiante', severity: 'error' });
         }
     };
 
     const handleNext = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        setActiveStep(prevActiveStep => prevActiveStep + 1);
     };
 
     const handleBack = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep - 1);
+        setActiveStep(prevActiveStep => prevActiveStep - 1);
     };
 
     const scrollToTop = () => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
+
 
     if (studentsLoading || interventionsLoading) {
         return (
@@ -168,11 +163,11 @@ const ViewStudent = () => {
         );
     }
 
-    if (!student) {
+    if (studentsError || interventionsError) {
         return (
             <LoadingContainer>
                 <Typography variant="h6" color="error">
-                    No se pudo cargar la información del estudiante.
+                    Error al cargar la información: {studentsError || interventionsError}
                 </Typography>
                 <Button 
                     variant="contained" 
@@ -186,12 +181,23 @@ const ViewStudent = () => {
         );
     }
 
-    const events = interventions.filter(i => i.studentId.toString() === id).map(intervention => ({
-        title: intervention.title,
-        start: new Date(intervention.createdAt),
-        end: new Date(intervention.createdAt),
-        interventionId: intervention.id
-    }));
+    if (!student) {
+        return (
+            <LoadingContainer>
+                <Typography variant="h6" color="error">
+                    No se pudo encontrar la información del estudiante.
+                </Typography>
+                <Button 
+                    variant="contained" 
+                    color="primary" 
+                    style={{ marginTop: '20px' }}
+                    onClick={() => navigate('/students')}
+                >
+                    Volver a la lista de estudiantes
+                </Button>
+            </LoadingContainer>
+        );
+    }
 
     const steps = [
         {
@@ -375,85 +381,116 @@ const ViewStudent = () => {
                     </IconButton>
                 </Tooltip>
                 <Typography variant="h4" component="h1" ml={2}>
-                    Ver Estudiante
+                    Perfil del Estudiante
                 </Typography>
             </Box>
             <StyledCard>
-                <Tabs value={tabValue} onChange={handleChangeTab} centered>
-                    <Tab icon={<PersonIcon />} label="Información del Estudiante" />
-                    <Tab icon={<CalendarTodayIcon />} label="Calendario de Intervenciones" />
-                    <Tab icon={<ListAltIcon />} label="Lista de Intervenciones" />
-                    <Tab icon={<EditIcon />} label="Editar Estudiante" />
-                </Tabs>
+                <CardContent>
+                    <Tabs value={tabValue} onChange={handleChangeTab} centered>
+                        <Tab icon={<PersonIcon />} label="Información Personal" />
+                        <Tab icon={<CalendarTodayIcon />} label="Intervenciones" />
+                        <Tab icon={<AssessmentIcon />} label="Análisis" />
+                        <Tab icon={<EditIcon />} label="Editar Perfil" />
+                    </Tabs>
 
-                <Fade in={tabValue === 0}>
-                    <Box hidden={tabValue !== 0}>
-                        <StudentCard student={student} />
-                    </Box>
-                </Fade>
+                    <Fade in={tabValue === 0}>
+                        <Box hidden={tabValue !== 0} mt={3}>
+                            <StudentCard student={student} />
+                        </Box>
+                    </Fade>
 
-                <Fade in={tabValue === 1}>
-                    <Box hidden={tabValue !== 1}>
-                        <InterventionCalendar events={events} onSelectEvent={handleEventSelect} />
-                    </Box>
-                </Fade>
+                    <Fade in={tabValue === 1}>
+                        <Box hidden={tabValue !== 1} mt={3}>
+                            <Grid container spacing={3}>
+                                <Grid item xs={12} md={8}>
+                                    <InterventionList 
+                                        interventions={interventions}
+                                        handleDelete={handleDelete}
+                                        studentId={id}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={4}>
+                                    <Typography variant="h6" gutterBottom>Calendario de Intervenciones</Typography>
+                                    <MiniInterventionCalendar 
+                                        interventions={interventions}
+                                        onSelectEvent={handleEventSelect}
+                                    />
+                                </Grid>
+                            </Grid>
+                        </Box>
+                    </Fade>
 
-                <Fade in={tabValue === 2}>
-                    <Box hidden={tabValue !== 2}>
-                        <InterventionList 
-                            interventions={interventions.filter(i => i.studentId.toString() === id)} 
-                            handleDelete={handleDelete} 
-                            studentId={id}
-                        />
-                    </Box>
-                </Fade>
+                    <Fade in={tabValue === 2}>
+                        <Box hidden={tabValue !== 2} mt={3}>
+                            <Typography variant="h5" gutterBottom>Análisis de Intervenciones</Typography>
+                            <Grid container spacing={3}>
+                                <Grid item xs={12} md={6}>
+                                    <InterventionSummary>
+                                        <Typography variant="h6" gutterBottom>Resumen de Intervenciones</Typography>
+                                        <Typography>Total de intervenciones: {interventions.length}</Typography>
+                                        <Typography>Intervenciones activas: {interventions.filter(i => i.status !== 'Completada').length}</Typography>
+                                        <Typography>Intervenciones completadas: {interventions.filter(i => i.status === 'Completada').length}</Typography>
+                                    </InterventionSummary>
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <InterventionSummary>
+                                        <Typography variant="h6" gutterBottom>Categorías de Intervenciones</Typography>
+                                        {Object.entries(interventions.reduce((acc, i) => {
+                                            acc[i.category] = (acc[i.category] || 0) + 1;
+                                            return acc;
+                                        }, {})).map(([category, count]) => (
+                                            <Chip 
+                                                key={category}
+                                                label={`${category}: ${count}`}
+                                                style={{ margin: '4px' }}
+                                            />
+                                        ))}
+                                    </InterventionSummary>
+                                </Grid>
+                            </Grid>
+                            {/* Aquí puedes agregar más visualizaciones y análisis */}
+                        </Box>
+                    </Fade>
 
-                <Fade in={tabValue === 3}>
-                    <Box hidden={tabValue !== 3}>
-                        <form onSubmit={handleSubmit}>
-                            <Stepper activeStep={activeStep} orientation="vertical">
-                                {steps.map((step, index) => (
-                                    <Step key={step.label}>
-                                        <StepLabel
-                                            StepIconComponent={() => (
-                                                <Box
-                                                    sx={{
-                                                        backgroundColor: activeStep === index ? 'primary.main' : 'grey.300',
-                                                        borderRadius: '50%',
-                                                        width: 40,
-                                                        height: 40,
-                                                        display: 'flex',
-                                                        justifyContent: 'center',
-                                                        alignItems: 'center',
-                                                        color: activeStep === index ? 'primary.contrastText' : 'text.primary',
-                                                    }}
-                                                >
-                                                    {step.icon}
-                                                </Box>
-                                            )}
-                                        >
-                                            {step.label}
-                                        </StepLabel>
-                                        <StepContent>
-                                            <Box sx={{ mb: 2 }}>
-                                                {step.content}
+                    <Fade in={tabValue === 3}>
+                        <Box hidden={tabValue !== 3} mt={3}>
+                            <Typography variant="h5" gutterBottom>Editar Perfil del Estudiante</Typography>
+                            <form onSubmit={handleSubmit}>
+                                <Stepper activeStep={activeStep} orientation="vertical">
+                                    {steps.map((step, index) => (
+                                        <Step key={step.label}>
+                                            <StepLabel
+                                                StepIconComponent={() => (
+                                                    <Avatar
+                                                        sx={{
+                                                            bgcolor: activeStep === index ? 'primary.main' : 'grey.300',
+                                                            color: activeStep === index ? 'primary.contrastText' : 'text.primary',
+                                                        }}
+                                                    >
+                                                        {step.icon}
+                                                    </Avatar>
+                                                )}
+                                            >
+                                                {step.label}
+                                            </StepLabel>
+                                            <StepContent>
                                                 <Box sx={{ mb: 2 }}>
-                                                    <div>
+                                                    {step.content}
+                                                    <Box sx={{ mb: 2, mt: 1 }}>
                                                         <Button
                                                             disabled={index === 0}
                                                             onClick={handleBack}
-                                                            sx={{ mt: 1, mr: 1 }}
+                                                            sx={{ mr: 1 }}
                                                         >
                                                             Atrás
                                                         </Button>
                                                         <Button
                                                             variant="contained"
                                                             onClick={index === steps.length - 1 ? handleSubmit : handleNext}
-                                                            sx={{ mt: 1, mr: 1 }}
-                                                            >
-                                                                {index === steps.length - 1 ? 'Guardar' : 'Siguiente'}
-                                                            </Button>
-                                                        </div>
+                                                            sx={{ mr: 1 }}
+                                                        >
+                                                            {index === steps.length - 1 ? 'Guardar' : 'Siguiente'}
+                                                        </Button>
                                                     </Box>
                                                 </Box>
                                             </StepContent>
@@ -463,38 +500,38 @@ const ViewStudent = () => {
                             </form>
                         </Box>
                     </Fade>
-                </StyledCard>
-    
-                <Dialog open={open} onClose={handleClose}>
-                    <DialogTitle>Confirmar Eliminación</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            ¿Estás seguro de que deseas eliminar esta intervención? Esta acción no se puede deshacer.
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleClose} color="primary">
-                            Cancelar
-                        </Button>
-                        <Button onClick={confirmDelete} color="secondary">
-                            Eliminar
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-    
-                <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-                    <Alert onClose={handleCloseSnackbar} severity="success">
-                        {snackbarMessage}
-                    </Alert>
-                </Snackbar>
-    
-                <Zoom in={showScrollTop}>
-                    <ScrollTop onClick={scrollToTop} color="primary" size="small" aria-label="scroll back to top">
-                        <KeyboardArrowUp />
-                    </ScrollTop>
-                </Zoom>
-            </StyledContainer>
-        );
-    };
-    
-    export default ViewStudent;
+                </CardContent>
+            </StyledCard>
+            
+            <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
+                <DialogTitle>Eliminar Intervención</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        ¿Estás seguro de que quieres eliminar esta intervención? Esta acción no se puede deshacer.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenDeleteDialog(false)} color="primary">
+                        Cancelar
+                    </Button>
+                    <Button onClick={confirmDelete} color="secondary">
+                        Eliminar
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
+
+            <Zoom in={showScrollTop}>
+                <ScrollTop onClick={scrollToTop} color="primary" size="small" aria-label="scroll back to top">
+                    <KeyboardArrowUp />
+                </ScrollTop>
+            </Zoom>
+        </StyledContainer>
+    );
+};
+
+export default ViewStudent;

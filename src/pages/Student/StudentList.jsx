@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { 
   Container, Typography, Grid, TextField, Button, Paper, Snackbar, Alert, Box,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, InputAdornment,
   Tooltip, Fade, useTheme, useMediaQuery, IconButton, Chip,
-  LinearProgress, TablePagination, Backdrop, CircularProgress, MenuItem
+  LinearProgress, TablePagination, Backdrop, CircularProgress,MenuItem
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
@@ -81,7 +81,7 @@ const StudentList = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-    useEffect(() => {
+    React.useEffect(() => {
         if (students) {
             setFilteredStudents(students);
         }
@@ -145,15 +145,6 @@ const StudentList = () => {
             return 0;
         });
         setFilteredStudents(sortedStudents);
-    };
-
-    const handleDelete = async (id) => {
-        try {
-            await deleteStudent(id);
-            setOpenSnackbar(true);
-        } catch (error) {
-            console.error('Error deleting student:', error);
-        }
     };
 
     if (error) return <Typography color="error">Error al cargar los estudiantes: {error.message}</Typography>;

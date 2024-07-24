@@ -40,6 +40,8 @@ const AppContent = ({ toggleTheme, theme }) => {
                     <Route path="/students/:id/AddIntervention" element={user && (user.role === 'admin' || user.role === 'usuario') ? <AddIntervention /> : <Navigate to="/" />} />
                     <Route path="/students/:id/EditIntervention/:interventionId" element={user && (user.role === 'admin' || user.role === 'usuario') ? <EditIntervention /> : <Navigate to="/" />} />
                     <Route path="/users" element={user && user.role === 'admin' ? <UserManagement /> : <Navigate to="/" />} />
+                    {/* Nueva ruta para añadir intervención desde el Dashboard */}
+                    <Route path="/AddIntervention" element={user && (user.role === 'admin' || user.role === 'usuario') ? <AddIntervention /> : <Navigate to="/" />} />
                 </Routes>
             </Box>
             <ThemeSwitcher toggleTheme={toggleTheme} theme={theme} />

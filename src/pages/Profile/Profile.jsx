@@ -2,7 +2,8 @@ import React, { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import {
   Box, TextField, Button, Grid, Avatar, Paper, Container,
-  Typography, Tabs, Tab, Divider, IconButton, Tooltip
+  Typography, Tabs, Tab, Divider, IconButton, Tooltip, Snackbar, Alert,
+  Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -12,7 +13,9 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import WorkIcon from '@mui/icons-material/Work';
 import CakeIcon from '@mui/icons-material/Cake';
+import LockIcon from '@mui/icons-material/Lock';
 import { AuthContext } from '../../contexts/AuthContext/AuthContext';
+import { useUsers } from '../../hooks/useUsers/useUsers';
 
 const ProfileContainer = styled(Container)(({ theme }) => ({
   marginTop: theme.spacing(4),
@@ -49,38 +52,24 @@ const InfoItem = styled(Box)(({ theme }) => ({
 }));
 
 const Profile = () => {
-  const { user, updateUser } = useContext(AuthContext);
+  const { user: authUser } = useContext(AuthContext);
+  const { users, isLoading, error, updateUser } = useUsers();
   const [editMode, setEditMode] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
-  const [profileData, setProfileData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    position: '',
-    phone: '',
-    address: '',
-    city: '',
-    state: '',
-    zip: '',
-    birthday: '',
-  });
+  const [profileData, setProfileData] = useState({});
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [openPasswordDialog, setOpenPasswordDialog] = useState(false);
+  const [passwordData, setPasswordData] = useState({ current: '', new: '', confirm: '' });
 
   useEffect(() => {
-    if (user) {
-      setProfileData({
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
-        email: user.email || '',
-        position: user.position || '',
-        phone: user.phone || '',
-        address: user.address || '',
-        city: user.city || '',
-        state: user.state || '',
-        zip: user.zip || '',
-        birthday: user.birthday || '',
-      });
+    if (users && authUser) {
+      const currentUser = users.find(u => u.id === authUser.id);
+      if (currentUser) {
+        setProfileData(currentUser);
+      }
     }
-  }, [user]);
+  }, [users, authUser]);
 
   const handleChange = (event) => {
     setProfileData({
@@ -94,8 +83,12 @@ const Profile = () => {
     try {
       await updateUser(profileData);
       setEditMode(false);
+      setSnackbarMessage('Perfil actualizado exitosamente');
+      setOpenSnackbar(true);
     } catch (error) {
       console.error('Error updating profile:', error);
+      setSnackbarMessage('Error al actualizar el perfil');
+      setOpenSnackbar(true);
     }
   };
 
@@ -103,17 +96,36 @@ const Profile = () => {
     setActiveTab(newValue);
   };
 
+  const handlePasswordChange = (event) => {
+    setPasswordData({
+      ...passwordData,
+      [event.target.name]: event.target.value
+    });
+  };
+
+  const handlePasswordSubmit = async () => {
+    // Aquí iría la lógica para cambiar la contraseña
+    // Por ahora, solo cerraremos el diálogo
+    setOpenPasswordDialog(false);
+    setPasswordData({ current: '', new: '', confirm: '' });
+    setSnackbarMessage('Contraseña actualizada exitosamente');
+    setOpenSnackbar(true);
+  };
+
+  if (isLoading) return <Typography>Cargando perfil...</Typography>;
+  if (error) return <Typography>Error al cargar el perfil: {error.message}</Typography>;
+
   return (
     <ProfileContainer maxWidth="lg">
       <ProfilePaper elevation={3}>
         <ProfileHeader>
-          <ProfileAvatar src={user?.avatar} alt={`${user?.firstName} ${user?.lastName}`} />
+          <ProfileAvatar src={profileData.avatar} alt={`${profileData.firstName} ${profileData.lastName}`} />
           <Box>
             <Typography variant="h4" gutterBottom>
-              {user?.firstName} {user?.lastName}
+              {profileData.firstName} {profileData.lastName}
             </Typography>
             <Typography variant="subtitle1" color="textSecondary">
-              {user?.role}
+              {profileData.role}
             </Typography>
           </Box>
           <Box ml="auto">
@@ -143,7 +155,7 @@ const Profile = () => {
         <Tabs value={activeTab} onChange={handleTabChange} centered>
           <Tab label="Información Personal" />
           <Tab label="Contacto" />
-          <Tab label="Configuración" />
+          <Tab label="Seguridad" />
         </Tabs>
 
         <Box mt={3}>
@@ -156,13 +168,13 @@ const Profile = () => {
                     {editMode ? (
                       <TextField
                         fullWidth
-                        name="position"
-                        value={profileData.position}
+                        name="role"
+                        value={profileData.role || ''}
                         onChange={handleChange}
-                        label="Cargo"
+                        label="Rol"
                       />
                     ) : (
-                      `Cargo: ${profileData.position || 'No especificado'}`
+                      `Rol: ${profileData.role || 'No especificado'}`
                     )}
                   </Typography>
                 </InfoItem>
@@ -172,15 +184,13 @@ const Profile = () => {
                     {editMode ? (
                       <TextField
                         fullWidth
-                        name="birthday"
-                        type="date"
-                        value={profileData.birthday}
+                        name="rut"
+                        value={profileData.rut || ''}
                         onChange={handleChange}
-                        label="Fecha de nacimiento"
-                        InputLabelProps={{ shrink: true }}
+                        label="RUT"
                       />
                     ) : (
-                      `Fecha de nacimiento: ${profileData.birthday || 'No especificada'}`
+                      `RUT: ${profileData.rut || 'No especificado'}`
                     )}
                   </Typography>
                 </InfoItem>
@@ -193,12 +203,12 @@ const Profile = () => {
                       <TextField
                         fullWidth
                         name="email"
-                        value={profileData.email}
+                        value={profileData.email || ''}
                         onChange={handleChange}
                         label="Correo electrónico"
                       />
                     ) : (
-                      `Email: ${profileData.email}`
+                      `Email: ${profileData.email || 'No especificado'}`
                     )}
                   </Typography>
                 </InfoItem>
@@ -209,7 +219,7 @@ const Profile = () => {
                       <TextField
                         fullWidth
                         name="phone"
-                        value={profileData.phone}
+                        value={profileData.phone || ''}
                         onChange={handleChange}
                         label="Teléfono"
                       />
@@ -229,61 +239,88 @@ const Profile = () => {
                   <LocationOnIcon />
                   <Typography>
                     {editMode ? (
-                      <>
-                        <TextField
-                          fullWidth
-                          name="address"
-                          value={profileData.address}
-                          onChange={handleChange}
-                          label="Dirección"
-                          margin="normal"
-                        />
-                        <TextField
-                          fullWidth
-                          name="city"
-                          value={profileData.city}
-                          onChange={handleChange}
-                          label="Ciudad"
-                          margin="normal"
-                        />
-                        <TextField
-                          fullWidth
-                          name="state"
-                          value={profileData.state}
-                          onChange={handleChange}
-                          label="Estado/Provincia"
-                          margin="normal"
-                        />
-                        <TextField
-                          fullWidth
-                          name="zip"
-                          value={profileData.zip}
-                          onChange={handleChange}
-                          label="Código Postal"
-                          margin="normal"
-                        />
-                      </>
+                      <TextField
+                        fullWidth
+                        name="address"
+                        value={profileData.address || ''}
+                        onChange={handleChange}
+                        label="Dirección"
+                      />
                     ) : (
-                      <>
-                        Dirección: {profileData.address}<br />
-                        Ciudad: {profileData.city}<br />
-                        Estado/Provincia: {profileData.state}<br />
-                        Código Postal: {profileData.zip}
-                      </>
+                      `Dirección: ${profileData.address || 'No especificada'}`
                     )}
                   </Typography>
                 </InfoItem>
               </Grid>
+              {/* Aquí puedes agregar más campos de contacto si es necesario */}
             </Grid>
           )}
 
           {activeTab === 2 && (
-            <Typography variant="body1">
-              Configuración del perfil y preferencias (Por implementar)
-            </Typography>
+            <Box>
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<LockIcon />}
+                onClick={() => setOpenPasswordDialog(true)}
+              >
+                Cambiar Contraseña
+              </Button>
+            </Box>
           )}
         </Box>
       </ProfilePaper>
+
+      <Dialog open={openPasswordDialog} onClose={() => setOpenPasswordDialog(false)}>
+        <DialogTitle>Cambiar Contraseña</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Por favor, introduce tu contraseña actual y la nueva contraseña.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            name="current"
+            label="Contraseña Actual"
+            type="password"
+            fullWidth
+            value={passwordData.current}
+            onChange={handlePasswordChange}
+          />
+          <TextField
+            margin="dense"
+            name="new"
+            label="Nueva Contraseña"
+            type="password"
+            fullWidth
+            value={passwordData.new}
+            onChange={handlePasswordChange}
+          />
+          <TextField
+            margin="dense"
+            name="confirm"
+            label="Confirmar Nueva Contraseña"
+            type="password"
+            fullWidth
+            value={passwordData.confirm}
+            onChange={handlePasswordChange}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenPasswordDialog(false)} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={handlePasswordSubmit} color="primary">
+            Cambiar Contraseña
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={() => setOpenSnackbar(false)}>
+        <Alert onClose={() => setOpenSnackbar(false)} severity="success" sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </ProfileContainer>
   );
 };

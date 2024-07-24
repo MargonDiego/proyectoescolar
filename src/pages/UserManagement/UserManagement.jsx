@@ -49,6 +49,7 @@ const UserManagement = () => {
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [filters, setFilters] = useState({ role: '', status: '' });
 
+  const theme = useTheme();
 
   const handleClickOpen = () => {
     setEditMode(false);
@@ -72,22 +73,23 @@ const UserManagement = () => {
     setNewUser({ ...newUser, [e.target.name]: e.target.value });
   };
 
-  const handleAddUser = () => {
-    addUser(newUser);
+  const handleAddUser = async () => {
+    await addUser(newUser);
     handleClose();
   };
 
-  const handleEditUser = () => {
-    updateUser(newUser);
+  const handleEditUser = async () => {
+    await updateUser(newUser);
     handleClose();
   };
 
-  const handleDeleteUser = () => {
-    deleteUser(currentUser.id);
+  const handleDeleteUser = async () => {
+    await deleteUser(currentUser.id);
     setDeleteOpen(false);
   };
 
   const exportUsers = () => {
+    // Lógica para exportar usuarios
     console.log("Exportando usuarios...");
   };
 
@@ -99,6 +101,8 @@ const UserManagement = () => {
     (filters.role === '' || user.role === filters.role) &&
     (filters.status === '' || user.status === filters.status)
   ) || [];
+
+  if (error) return <Typography color="error">Error al cargar los usuarios: {error.message}</Typography>;
 
   return (
     <Box sx={{ width: '100%', p: 3 }}>

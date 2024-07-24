@@ -13,9 +13,9 @@ import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import ViewWeekIcon from '@mui/icons-material/ViewWeek';
 import ViewDayIcon from '@mui/icons-material/ViewDay';
 import ViewAgendaIcon from '@mui/icons-material/ViewAgenda';
+import { useInterventions } from '../../../hooks/useInterventions/useInterventions';
 
 moment.locale('es');
-
 const localizer = momentLocalizer(moment);
 
 const StyledPaper = styled(Paper)`
@@ -94,9 +94,25 @@ const ToolbarCard = styled(Card)`
   background-color: #e0e0e0;
 `;
 
-const InterventionCalendar = ({ events, onSelectEvent, onAddEvent }) => {
+const InterventionCalendar = ({ studentId, onSelectEvent, onAddEvent }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState(Views.MONTH);
+  const { interventions, isLoading, error } = useInterventions();
+
+  if (isLoading) return <Typography>Cargando calendario...</Typography>;
+  if (error) return <Typography>Error al cargar el calendario: {error.message}</Typography>;
+
+  const filteredInterventions = studentId
+    ? interventions.filter(intervention => intervention.studentId.toString() === studentId.toString())
+    : interventions;
+
+  const events = filteredInterventions.map(intervention => ({
+    id: intervention.id,
+    title: intervention.title,
+    start: new Date(intervention.createdAt),
+    end: new Date(intervention.createdAt),
+    resource: intervention
+  }));
 
   const CustomToolbarContent = ({ label, onNavigate, onView }) => {
     return (
@@ -120,7 +136,7 @@ const InterventionCalendar = ({ events, onSelectEvent, onAddEvent }) => {
           <ToolbarCard elevation={2}>
             <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <Button variant="contained" color="secondary" startIcon={<AddIcon />} onClick={onAddEvent}>
-                Añadir Evento
+                Añadir Incidente
               </Button>
               <Box>
                 <Button onClick={() => onNavigate('TODAY')} startIcon={<TodayIcon />}>Hoy</Button>

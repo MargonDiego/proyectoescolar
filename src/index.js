@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import App from './App';
-import AuthProvider from './contexts/AuthContext/AuthContext';
+import { AuthProvider } from './contexts/AuthContext/AuthContext';  // Cambiado aquí
 
 const queryClient = new QueryClient();
 

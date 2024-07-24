@@ -4,7 +4,7 @@ import {
   Container, Typography, TextField, Button, MenuItem, Box, Grid, List,  
   ListItemText, ListItemAvatar, Avatar, Divider, Chip, IconButton, Tooltip, Snackbar, Alert,
   Card, CardContent, CardHeader, CardActions, Accordion, AccordionSummary, AccordionDetails,
-  Paper
+  Paper, FormControl, InputLabel, Select
 } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext/AuthContext';
@@ -21,6 +21,7 @@ import FlagIcon from '@mui/icons-material/Flag';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import EventIcon from '@mui/icons-material/Event';
 import UpdateIcon from '@mui/icons-material/Update';
+import CategoryIcon from '@mui/icons-material/Category';
 
 const StyledContainer = styled(Container)(({ theme }) => ({
   marginTop: theme.spacing(4),
@@ -63,7 +64,7 @@ const EditIntervention = () => {
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
     const { students } = useStudents();
-    const { interventions, updateIntervention, isLoading } = useInterventions();
+    const { interventions, updateIntervention, isLoading, categories, priorities, statuses } = useInterventions();
     const [intervention, setIntervention] = useState(null);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
@@ -73,9 +74,6 @@ const EditIntervention = () => {
     const [snackbarMessage, setSnackbarMessage] = useState('');
 
     const isAdmin = user && user.role === 'admin';
-
-    const priorities = ['Low', 'Medium', 'High'];
-    const statuses = ['Started', 'In Progress', 'Resolved', 'Closed'];
 
     useEffect(() => {
         if (interventions) {
@@ -202,6 +200,30 @@ const EditIntervention = () => {
                             </Grid>
                             <Grid item xs={12} md={6}>
                                 <InfoItem>
+                                    <CategoryIcon />
+                                    {isEditing ? (
+                                        <FormControl fullWidth>
+                                            <InputLabel>Categoría</InputLabel>
+                                            <Select
+                                                name="category"
+                                                value={intervention.category}
+                                                onChange={handleChange}
+                                                label="Categoría"
+                                            >
+                                                {categories.map((category) => (
+                                                    <MenuItem key={category} value={category}>
+                                                        {category}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                    ) : (
+                                        <Typography variant="body2"><strong>Categoría:</strong> {intervention.category}</Typography>
+                                    )}
+                                </InfoItem>
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <InfoItem>
                                     <AssignmentIndIcon />
                                     {isEditing ? (
                                         <TextField
@@ -221,21 +243,21 @@ const EditIntervention = () => {
                                 <InfoItem>
                                     <FlagIcon />
                                     {isEditing ? (
-                                        <TextField
-                                            select
-                                            label="Prioridad"
-                                            name="priority"
-                                            value={intervention.priority}
-                                            onChange={handleChange}
-                                            fullWidth
-                                            variant="outlined"
-                                        >
-                                            {priorities.map((option) => (
-                                                <MenuItem key={option} value={option}>
-                                                    {option}
-                                                </MenuItem>
-                                            ))}
-                                        </TextField>
+                                        <FormControl fullWidth>
+                                            <InputLabel>Prioridad</InputLabel>
+                                            <Select
+                                                name="priority"
+                                                value={intervention.priority}
+                                                onChange={handleChange}
+                                                label="Prioridad"
+                                            >
+                                                {priorities.map((option) => (
+                                                    <MenuItem key={option} value={option}>
+                                                        {option}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
                                     ) : (
                                         <Chip label={`Prioridad: ${intervention.priority}`} color="primary" variant="outlined" />
                                     )}
@@ -245,21 +267,21 @@ const EditIntervention = () => {
                                 <InfoItem>
                                     <EventIcon />
                                     {isEditing ? (
-                                        <TextField
-                                            select
-                                            label="Estado"
-                                            name="status"
-                                            value={intervention.status}
-                                            onChange={handleChange}
-                                            fullWidth
-                                            variant="outlined"
-                                        >
-                                            {statuses.map((option) => (
-                                                <MenuItem key={option} value={option}>
-                                                    {option}
-                                                </MenuItem>
-                                            ))}
-                                        </TextField>
+                                        <FormControl fullWidth>
+                                            <InputLabel>Estado</InputLabel>
+                                            <Select
+                                                name="status"
+                                                value={intervention.status}
+                                                onChange={handleChange}
+                                                label="Estado"
+                                            >
+                                                {statuses.map((option) => (
+                                                    <MenuItem key={option} value={option}>
+                                                        {option}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
                                     ) : (
                                         <Chip label={`Estado: ${intervention.status}`} color="secondary" variant="outlined" />
                                     )}
@@ -400,7 +422,7 @@ const EditIntervention = () => {
                                 endIcon={<SendIcon />}
                                 onClick={sendComment}
                             >
-                            Enviar
+                                Enviar
                             </Button>
                         </Box>
                     </Box>

@@ -1,11 +1,12 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import {
-  Container, Typography, TextField, Button, Box, List, ListItem, ListItemText, 
-  ListItemAvatar, Avatar, Divider, Chip, IconButton, Tooltip, Snackbar, Alert, Card, CardContent, Stepper, 
-  Step, StepLabel, StepContent, MenuItem
+  Container, Typography, TextField, Button, Box, Select, MenuItem,
+  FormControl, InputLabel, Snackbar, Alert, List, ListItem, ListItemText,
+  ListItemAvatar, Avatar, Divider, Chip, IconButton, Tooltip, Card, CardContent,
+  Stepper, Step, StepLabel, StepContent, Grid
 } from '@mui/material';
-import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext/AuthContext';
 import { useStudents } from '../../hooks/useStudents/useStudents';
 import { useInterventions } from '../../hooks/useInterventions/useInterventions';
@@ -39,19 +40,22 @@ const FileInput = styled('input')({
 const AddIntervention = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useContext(AuthContext);
   const { students } = useStudents();
-  const { addIntervention, isLoading } = useInterventions();
+  const { addIntervention, isLoading, categories, priorities, statuses } = useInterventions();
 
   const [intervention, setIntervention] = useState({
     title: '',
     description: '',
+    studentId: id || (location.state && location.state.studentId) || '',
+    createdBy: user?.id,
     assignedTo: '',
     priority: 'Medium',
-    files: [],
+    category: '',
     status: 'Started',
-    createdBy: user?.id,
-    studentId: id,
+    dueDate: '',
+    files: [],
   });
 
   const [comments, setComments] = useState([]);
@@ -60,8 +64,11 @@ const AddIntervention = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
-  const priorities = ['Low', 'Medium', 'High'];
-  const statuses = ['Started', 'In Progress', 'Resolved', 'Closed'];
+  useEffect(() => {
+    if (!intervention.studentId && students.length > 0) {
+      setIntervention(prev => ({ ...prev, studentId: students[0].id }));
+    }
+  }, [students]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -137,6 +144,19 @@ const AddIntervention = () => {
             required
             margin="normal"
           />
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Categoría</InputLabel>
+            <Select
+              name="category"
+              value={intervention.category}
+              onChange={handleChange}
+              required
+            >
+              {categories.map(category => (
+                <MenuItem key={category} value={category}>{category}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </>
       ),
     },
@@ -152,36 +172,46 @@ const AddIntervention = () => {
             fullWidth
             margin="normal"
           />
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Prioridad</InputLabel>
+            <Select
+              name="priority"
+              value={intervention.priority}
+              onChange={handleChange}
+              required
+            >
+              {priorities.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Estado</InputLabel>
+            <Select
+              name="status"
+              value={intervention.status}
+              onChange={handleChange}
+              required
+            >
+              {statuses.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <StyledTextField
-            select
-            label="Prioridad"
-            name="priority"
-            value={intervention.priority}
+            label="Fecha límite"
+            name="dueDate"
+            type="date"
+            value={intervention.dueDate}
             onChange={handleChange}
             fullWidth
             margin="normal"
-          >
-            {priorities.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </StyledTextField>
-          <StyledTextField
-            select
-            label="Estado"
-            name="status"
-            value={intervention.status}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-          >
-            {statuses.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </StyledTextField>
+            InputLabelProps={{ shrink: true }}
+          />
         </>
       ),
     },

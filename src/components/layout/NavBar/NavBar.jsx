@@ -21,8 +21,8 @@ import Notifications from '../../integrated/Notifications/Notifications';
 
 const StyledAppBar = styled(AppBar)`
     background-color: white;
-    border-bottom: 2px solid red;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-bottom: 4px solid red;
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
 `;
 
 const LogoImg = styled.img`

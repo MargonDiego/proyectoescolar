@@ -12,10 +12,14 @@ TrabajoApp/
 │   │   │   │   └── InterventionCalendar.jsx
 │   │   │   ├── InterventionList/
 │   │   │   │   └── InterventionList.jsx
+│   │   │   ├── MiniInterventionCalendar/
+│   │   │   │   └── MiniInterventionCalendar.jsx
 │   │   │   ├── Notifications/
 │   │   │   │   └── Notifications.jsx
 │   │   │   ├── StudentCard/
 │   │   │   │   └── StudentCard.jsx
+│   │   │   ├── ThemeSwitcher/
+│   │   │   │   └── ThemeSwitcher.jsx
 │   │   │   └── UserCard/
 │   │   │   │   └── UserCard.jsx
 │   │   └── layout/
@@ -30,6 +34,12 @@ TrabajoApp/
 │   │   │   └── NotificationContext.jsx
 │   ├── hooks/
 │   │   └── useAuth/
+│   │   │   └── useAuth.js
+│   │   └── useInterventions/
+│   │   │   └── useAuth.js
+│   │   └── useStudents/
+│   │   │   └── useAuth.js
+│   │   └── useUsers/
 │   │   │   └── useAuth.js
 │   ├── pages/
 │   │   ├── Auth/
@@ -70,6 +80,7 @@ TrabajoApp/
 │   ├── App.test.js
 │   ├── index.css
 │   ├── index.js
+│   ├── theme.js
 │   ├── logo.svg
 │   ├── reportWebVitals.js
 │   └── setupTests.js
